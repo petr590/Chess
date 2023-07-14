@@ -37,9 +37,9 @@ public final class GuiUtil {
 		return constraints;
 	}
 
-	public static GridBagConstraints constraintsWithCoords(GridBagConstraints constraints, int x, int y, int weightX, int weightY) {
-		constraints.weightx = weightX;
-		constraints.weighty = weightY;
+	public static GridBagConstraints constraintsWithCoords(GridBagConstraints constraints, int x, int y, int gridWidth, int gridHeight) {
+		constraints.gridwidth = gridWidth;
+		constraints.gridheight = gridHeight;
 		return constraintsWithCoords(constraints, x, y);
 	}
 }

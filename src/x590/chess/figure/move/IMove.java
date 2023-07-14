@@ -62,7 +62,7 @@ public interface IMove extends IStep {
 		var extraMove = extraMove();
 
 		if (extraMove != null) {
-			str.append(", ").append(extraMove);
+			str.append(", ").append(extraMove.toConvenientString());
 		}
 
 		return str.toString();

@@ -1,4 +1,4 @@
-package x590.chess.gui;
+package x590.chess.gui.board;
 
 import x590.chess.gui.board.FieldPanel;
 
@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class IndexPanel extends JLabel {
-
-	public static final Color BACKGROUND_COLOR = new Color(0x523F30);
 
 	private static final Dimension
 			VERTICAL_PREFERRED_SIZE = new Dimension(),
@@ -31,6 +29,6 @@ public class IndexPanel extends JLabel {
 		setFont(getFont().deriveFont(Font.BOLD));
 		setOpaque(true);
 		setForeground(Color.WHITE);
-		setBackground(BACKGROUND_COLOR);
+		setBackground(BoardPanel.BORDER_COLOR);
 	}
 }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="18ae1677-fa78-4e5c-9f83-07907003aeeb" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Util.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Util.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ThirdGame.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/Figure.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/Figure.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/move/IMove.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/move/IMove.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/GamePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/GuiUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/GuiUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/IndexPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/IndexPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/MovesPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/MovesPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/TakenFiguresPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/TakenFiguresPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/BoardPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/BoardPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/CornerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/CornerPanel.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2SWm4I8HHehYmBdE3JkE1zwqu1Y" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/w/IdeaProjects/Util/out/production/x590.util/Util.jar",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="18ae1677-fa78-4e5c-9f83-07907003aeeb" name="Changes" comment="" />
+      <created>1689270522773</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1689270522773</updated>
+    </task>
+    <servers />
+  </component>
+</project>

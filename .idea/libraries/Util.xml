@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="Util">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../libs/Util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Util/out/production/x590.util/Util.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

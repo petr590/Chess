@@ -14,7 +14,7 @@ public class GamePanel extends JPanel {
 
 	private final TakenFiguresPanel whitePanel, blackPanel;
 
-	private final MovesPanel movesPanel = new MovesPanel();
+	private final MovesPanel movesPanel;
 
 	public GamePanel(ChessBoard board, Side side) {
 		super(new GridBagLayout());
@@ -30,7 +30,8 @@ public class GamePanel extends JPanel {
 		add(side.choose(whitePanel, blackPanel), GuiUtil.constraintsWithCoords(constraints, 0, 0));
 		add(boardPanel,                          GuiUtil.constraintsWithCoords(constraints, 0, 1));
 		add(side.choose(blackPanel, whitePanel), GuiUtil.constraintsWithCoords(constraints, 0, 2));
-		add(movesPanel, GuiUtil.constraintsWithCoords(constraints, 1, 0,  0, 2));
+		this.movesPanel = new MovesPanel(boardPanel);
+		add(movesPanel,                          GuiUtil.constraintsWithCoords(constraints, 1, 1));
 	}
 
 	public void makeMove(IMove move) {

@@ -6,6 +6,7 @@ import x590.chess.figure.Side;
 import x590.chess.gui.*;
 import x590.chess.gui.board.CornerPanel;
 import x590.chess.gui.board.FieldPanel;
+import x590.chess.gui.board.IndexPanel;
 
 import javax.swing.*;
 import java.awt.*;

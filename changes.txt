@@ -1,1 +1,1 @@
-The game itself has been created, all the rules of chess have been implemented, including taking a pass, turning a pawn and castling.
+Minor Gui fixes and improvements

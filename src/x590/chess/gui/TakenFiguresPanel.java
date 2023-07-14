@@ -41,7 +41,7 @@ public class TakenFiguresPanel extends JPanel {
 		setPreferredSize(preferredSize);
 		setMaximumSize(preferredSize);
 
-//		setBorder(BorderFactory.createLineBorder(Color.CYAN));
+		setBorder(BorderFactory.createLineBorder(Color.CYAN));
 
 		INSTANCES.add(this);
 	}

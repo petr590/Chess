@@ -26,8 +26,8 @@ public enum Figure {
 	WHITE_PAWN   (Side.WHITE, FigureType.PAWN,   "♙", FigureBehaviours.PAWN),
 
 	BLACK_KING   (Side.BLACK, FigureType.KING,   "♚", FigureBehaviours.KING),
-	BLACK_QUEEN  (Side.BLACK, FigureType.QUEEN,  "♚", FigureBehaviours.QUEEN),
-	BLACK_ROOK   (Side.BLACK, FigureType.ROOK,   "♚", FigureBehaviours.ROOK),
+	BLACK_QUEEN  (Side.BLACK, FigureType.QUEEN,  "♛", FigureBehaviours.QUEEN),
+	BLACK_ROOK   (Side.BLACK, FigureType.ROOK,   "♜", FigureBehaviours.ROOK),
 	BLACK_BISHOP (Side.BLACK, FigureType.BISHOP, "♝", FigureBehaviours.BISHOP),
 	BLACK_KNIGHT (Side.BLACK, FigureType.KNIGHT, "♞", FigureBehaviours.KNIGHT),
 	BLACK_PAWN   (Side.BLACK, FigureType.PAWN,   "♟", FigureBehaviours.PAWN);

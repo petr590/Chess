@@ -1,7 +1,5 @@
 package x590.chess.gui.board;
 
-import x590.chess.gui.IndexPanel;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -38,7 +36,7 @@ public class CornerPanel extends JPanel {
 			yPoints[i] *= height;
 		}
 
-		graphics.setColor(IndexPanel.BACKGROUND_COLOR);
+		graphics.setColor(BoardPanel.BORDER_COLOR);
 		graphics.fillPolygon(xPoints, yPoints, 3);
 
 		for (int i = 0; i < 3; i++) {

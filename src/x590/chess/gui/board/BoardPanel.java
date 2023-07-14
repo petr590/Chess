@@ -9,7 +9,6 @@ import x590.chess.figure.Side;
 import x590.chess.figure.step.StepResult;
 import x590.chess.gui.GamePanel;
 import x590.chess.gui.GuiUtil;
-import x590.chess.gui.IndexPanel;
 import x590.util.annotation.Nullable;
 
 import javax.swing.*;
@@ -23,6 +22,9 @@ public class BoardPanel extends JPanel {
 	private static final int
 			GRID_START = 0,
 			GRID_END = SIZE + 1;
+
+
+	public static final Color BORDER_COLOR = new Color(0x523F30);
 
 	private final ChessBoard chessBoard;
 
