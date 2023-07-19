@@ -1,18 +1,24 @@
 package x590.chess.gui.board;
 
+import x590.chess.config.GameConfig;
 import x590.chess.figure.move.IMove;
+import x590.chess.figure.move.IMove.IExtraMove;
 import x590.chess.figure.step.IStep;
-import x590.chess.figure.step.IStep.IExtraStep;
 import x590.chess.board.ChessBoard;
-import x590.chess.Pos;
+import x590.chess.figure.Pos;
 import x590.chess.figure.Side;
 import x590.chess.figure.step.StepResult;
 import x590.chess.gui.GamePanel;
 import x590.chess.gui.GuiUtil;
+import x590.chess.playingside.PlayingSide;
+import x590.chess.playingside.RemotePlayingSide;
 import x590.util.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BoardPanel extends JPanel {
 
@@ -30,15 +36,39 @@ public class BoardPanel extends JPanel {
 
 	private final GamePanel gamePanel;
 
+	private final PlayingSide whitePlayingSide, blackPlayingSide;
+	private final @Nullable RemotePlayingSide remotePlayingSide;
+	private PlayingSide currentPlayingSide;
+
+	private final Side thisSide;
+
 	private final FieldPanel[][] panels = new FieldPanel[SIZE][SIZE];
 
 	private @Nullable FieldPanel selected;
 
-	public BoardPanel(ChessBoard chessBoard, Side side, GamePanel gamePanel) {
+	/** Последний ход, на котором была предложена ничья */
+	private int lastStepDrawHasBeenOffered = -1;
+
+
+	public BoardPanel(ChessBoard chessBoard, Supplier<Side> sideSupplier, PlayingSide thisPlayingSide, PlayingSide opponentPlayingSide, GamePanel gamePanel) {
 		super(new GridBagLayout());
 
 		this.chessBoard = chessBoard;
 		this.gamePanel = gamePanel;
+
+		thisPlayingSide.setup(this);
+		opponentPlayingSide.setup(this);
+
+		Side side = this.thisSide = sideSupplier.get(); // sideSupplier.get() должен вызываться только после вызова PlayingSide.setup(BoardPanel)
+
+		this.whitePlayingSide = side.choose(thisPlayingSide, opponentPlayingSide);
+		this.blackPlayingSide = side.choose(opponentPlayingSide, thisPlayingSide);
+
+		this.remotePlayingSide =
+				whitePlayingSide instanceof RemotePlayingSide remote ? remote :
+				blackPlayingSide instanceof RemotePlayingSide remote ? remote : null;
+
+		this.currentPlayingSide = chessBoard.currentSide().choose(whitePlayingSide, blackPlayingSide);
 
 		var constraints = new GridBagConstraints();
 
@@ -79,6 +109,10 @@ public class BoardPanel extends JPanel {
 		add(new CornerPanel(0, 0,  0, 1,  1, 0), GuiUtil.constraintsWithCoords(constraints, GRID_END,   GRID_END));
 	}
 
+	public Side getThisSide() {
+		return thisSide;
+	}
+
 	public void select(FieldPanel fieldPanel) {
 		if (selected != null) {
 			selected.unselect();
@@ -102,16 +136,24 @@ public class BoardPanel extends JPanel {
 		}
 	}
 
+	public boolean canSelect(FieldPanel fieldPanel) {
+		return currentPlayingSide.canSelectField() && fieldPanel != selected;
+	}
+
 	public FieldPanel getFieldPanel(Pos pos) {
 		return panels[pos.getY()][pos.getX()];
 	}
 
-	public FieldPanel getSelected() {
-		return selected;
-	}
-
 	public ChessBoard getChessBoard() {
 		return chessBoard;
+	}
+
+	public Side currentSide() {
+		return chessBoard.currentSide();
+	}
+
+	public GamePanel getGamePanel() {
+		return gamePanel;
 	}
 
 	private static final String
@@ -120,27 +162,50 @@ public class BoardPanel extends JPanel {
 			EXIT = "Выйти";
 
 
-	public void step(IStep step) {
-		clearVisualMarking();
+	public void makeStep(IStep step) {
+		if (chessBoard.currentSide().choose(blackPlayingSide, whitePlayingSide).canMakeMove()) {
+			clearVisualMarking();
 
-		var selected = this.selected;
-		selected.unselect();
-		this.selected = null;
+			var selected = this.selected;
+			this.selected = null;
+			selected.unselect();
 
-		Pos startPos = selected.getPos();
-		IMove move = step.asMove(startPos, chessBoard);
+			Pos startPos = selected.getPos();
 
-		StepResult result = chessBoard.step(startPos, step);
-		repaintChanged(startPos, step);
+			makeMove(step.asMove(startPos, chessBoard));
+		}
+	}
+
+
+	public void makeMove(IMove move) {
+		makeMove(move, PlayingSide::onMoveMake, gamePanel -> gamePanel.onMoveMake(move));
+	}
+
+	public void repeatLastCanceledMove(IMove move) {
+		makeMove(move, PlayingSide::onLastCanceledMoveRepeat, GamePanel::onLastCanceledMoveRepeat);
+	}
+
+	private void makeMove(IMove move, BiConsumer<PlayingSide, IMove> playingSideOnMoveMake,
+						  Consumer<GamePanel> gamePanelOnMoveMake) {
+
+		StepResult result = chessBoard.makeMove(move);
+		currentPlayingSide = chessBoard.currentSide().choose(whitePlayingSide, blackPlayingSide);
+
+		repaintChanged(move);
 		updateAllFields();
+
+		playingSideOnMoveMake.accept(currentPlayingSide, move);
+		gamePanelOnMoveMake.accept(gamePanel);
+		updateDrawOfferButton();
 
 		if (result.isKingAttacked()) {
 			getFieldPanel(chessBoard.getKingPos()).setAttacked(true);
 		}
 
-		gamePanel.makeMove(move);
-
 		if (!result.canContinueGame()) {
+			whitePlayingSide.onGameEnd();
+			blackPlayingSide.onGameEnd();
+
 			String chose = GuiUtil.showOptionDialog(
 					result == StepResult.CHECKMATE ?
 							chessBoard.currentSide().getLocalizedName() + " выиграли" :
@@ -166,6 +231,23 @@ public class BoardPanel extends JPanel {
 		}
 	}
 
+
+	public boolean canCancelMove() {
+		return currentPlayingSide.canCancelMove();
+	}
+
+	public void cancelMove(IMove move, @Nullable IStep prevStep) {
+		clearVisualMarking();
+
+		chessBoard.cancelMove(move, prevStep);
+
+		currentPlayingSide.onMoveCancel(move, prevStep);
+		currentPlayingSide = chessBoard.currentSide().choose(whitePlayingSide, blackPlayingSide);
+
+		repaintChanged(move);
+		updateAllFields();
+	}
+
 	private void clearVisualMarking() {
 		for (FieldPanel[] row : panels) {
 			for (FieldPanel panel : row) {
@@ -183,11 +265,11 @@ public class BoardPanel extends JPanel {
 		}
 	}
 
-	private void repaintChanged(Pos startPos, IStep step) {
-		getFieldPanel(startPos).repaint();
+	private void repaintChanged(IMove move) {
+		getFieldPanel(move.startPos()).repaint();
 
-		Pos targetPos = step.targetPos(),
-			takePos = step.takePos();
+		Pos targetPos = move.targetPos(),
+			takePos = move.takePos();
 
 		getFieldPanel(targetPos).repaint();
 
@@ -195,10 +277,10 @@ public class BoardPanel extends JPanel {
 			getFieldPanel(takePos).repaint();
 		}
 
-		IExtraStep extraStep = step.extraStep();
+		@Nullable IExtraMove extraMove = move.extraStep();
 
-		if (extraStep != null) {
-			repaintChanged(extraStep.startPos(), extraStep);
+		if (extraMove != null) {
+			repaintChanged(extraMove);
 		}
 	}
 
@@ -209,4 +291,39 @@ public class BoardPanel extends JPanel {
 			}
 		}
 	}
+	public boolean isRemote() {
+		return remotePlayingSide != null;
+	}
+
+	private void updateDrawOfferButton() {
+		if (lastStepDrawHasBeenOffered != -1 && lastStepDrawHasBeenOffered + getOfferADrawTimeout() == chessBoard.getStepNumber()) {
+			gamePanel.unlockDrawOfferButton();
+		}
+	}
+
+	public void lockDrawOfferButton() {
+		gamePanel.lockDrawOfferButton();
+	}
+
+	public int getOfferADrawTimeout() {
+		if (remotePlayingSide != null) {
+			return remotePlayingSide.getOfferADrawTimeout();
+		}
+
+		return GameConfig.DEFAULT_TIMEOUT;
+	}
+
+	public void offerADraw() {
+		if (remotePlayingSide != null) {
+			remotePlayingSide.offerADraw();
+			lastStepDrawHasBeenOffered = chessBoard.getStepNumber();
+		}
+	}
+
+	public void giveUp() {
+		if (remotePlayingSide != null) {
+			remotePlayingSide.giveUp();
+		}
+	}
+
 }

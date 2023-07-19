@@ -1,25 +1,28 @@
 package x590.chess.figure;
 
 import x590.chess.board.ChessBoard;
-import x590.chess.figure.step.StepResult;
 
 import java.util.function.BiFunction;
 
+/**
+ * Сторона, за которую играет игрок (или бот)
+ */
 public enum Side {
-	WHITE("white", "Белые", (whiteChoose, blackChoose) -> whiteChoose, 0, ChessBoard.END),
-	BLACK("black", "Чёрные", (whiteChoose, blackChoose) -> blackChoose, ChessBoard.END, 0);
+	WHITE("white", "Белые",  "Ход белых",  (whiteChoose, blackChoose) -> whiteChoose, ChessBoard.START, ChessBoard.END),
+	BLACK("black", "Чёрные", "Ход чёрных", (whiteChoose, blackChoose) -> blackChoose, ChessBoard.END, ChessBoard.START);
 
 	private final String directory;
 
-	private final String localizedName;
+	private final String localizedName, state;
 
 	private final BiFunction<Object, Object, Object> chooser;
 
 	private final int startY, endY;
 
-	Side(String directory, String localizedName, BiFunction<Object, Object, Object> chooser, int startY, int endY) {
+	Side(String directory, String localizedName, String state, BiFunction<Object, Object, Object> chooser, int startY, int endY) {
 		this.directory = directory;
 		this.localizedName = localizedName;
+		this.state = state;
 		this.chooser = chooser;
 		this.startY = startY;
 		this.endY = endY;
@@ -37,14 +40,22 @@ public enum Side {
 		return localizedName;
 	}
 
+	public String getState() {
+		return state;
+	}
+
 	public Side opposite() {
 		return choose(BLACK, WHITE);
+	}
+
+	public Side oppositeIf(boolean isOpposite) {
+		return isOpposite ? opposite() : this;
 	}
 
 	/**
 	 * Удобный метод для выбора значения, которое зависит от текущей стороны
 	 * @return {@code whiteChoose} для {@link #WHITE} и
-	 *         {@code blackChoose} для {@link #BLACK} и
+	 *         {@code blackChoose} для {@link #BLACK}
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T choose(T whiteChoose, T blackChoose) {

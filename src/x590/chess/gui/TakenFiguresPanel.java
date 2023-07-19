@@ -13,6 +13,9 @@ import java.util.List;
 
 import static x590.chess.board.ChessBoard.SIZE;
 
+/**
+ * Панель, которая содержит взятые фигуры
+ */
 public class TakenFiguresPanel extends JPanel {
 
 	public static void updateSize() {
@@ -41,15 +44,15 @@ public class TakenFiguresPanel extends JPanel {
 		setPreferredSize(preferredSize);
 		setMaximumSize(preferredSize);
 
-		setBorder(BorderFactory.createLineBorder(Color.CYAN));
+//		setBorder(BorderFactory.createLineBorder(Color.CYAN));
 
 		INSTANCES.add(this);
 	}
 
 	public void updateFiguresList() {
 		removeAll();
-		updateThisSize();
 		takenFigures.stream().map(Figure::getMiniIcon).map(JLabel::new).forEachOrdered(this::add);
+		repaint();
 	}
 
 	private void updateThisSize() {

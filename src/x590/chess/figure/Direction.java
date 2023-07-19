@@ -1,4 +1,4 @@
-package x590.chess;
+package x590.chess.figure;
 
 import x590.util.annotation.Immutable;
 
@@ -23,17 +23,17 @@ public enum Direction {
 	KNIGHT_LEFT_UP    (Dir.LEFT2, Dir.UP),
 	KNIGHT_LEFT_DOWN  (Dir.LEFT2, Dir.DOWN);
 
-	private static class Dir {
+	private static final class Dir {
 		private static final int
 				NONE   =  0,
 				UP     =  1,
 				DOWN   = -1,
 				LEFT   = -1,
 				RIGHT  =  1,
-				UP2    =  2,
-				DOWN2  = -2,
-				LEFT2  = -2,
-				RIGHT2 =  2;
+				UP2    = UP    * 2,
+				DOWN2  = DOWN  * 2,
+				LEFT2  = LEFT  * 2,
+				RIGHT2 = RIGHT * 2;
 	}
 
 	public static final @Immutable Set<Direction>

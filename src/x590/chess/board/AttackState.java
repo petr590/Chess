@@ -6,10 +6,10 @@ import x590.chess.figure.Side;
  * Показывает, какой стороной атаковано поле
  */
 public enum AttackState {
-	NOT_ATTACKED(false, false),
-	ATTACKED_BY_WHITE(true, false),
-	ATTACKED_BY_BLACK(false, true),
-	ATTACKED_BY_BOTH(true, true);
+	NOT_ATTACKED      (false, false),
+	ATTACKED_BY_WHITE (true, false),
+	ATTACKED_BY_BLACK (false, true),
+	ATTACKED_BY_BOTH  (true, true);
 
 	static {
 		NOT_ATTACKED.stateAttackedByWhite = ATTACKED_BY_WHITE;
@@ -27,7 +27,7 @@ public enum AttackState {
 	}
 
 	public boolean isAttackedBy(Side side) {
-		return side == Side.WHITE ? attackedByWhite : attackedByBlack;
+		return side.choose(attackedByWhite, attackedByBlack);
 	}
 
 	public AttackState attackedBy(Side side) {

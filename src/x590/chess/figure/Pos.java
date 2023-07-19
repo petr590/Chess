@@ -1,11 +1,16 @@
-package x590.chess;
+package x590.chess.figure;
 
 import x590.chess.board.ChessBoard;
-import x590.chess.figure.Figure;
 import x590.chess.figure.move.IMove;
 import x590.chess.figure.step.IStep;
+import x590.chess.io.PacketInputStream;
+import x590.chess.io.PacketOutputStream;
+import x590.chess.io.Tag;
+import x590.chess.packet.PacketOutputStreamWritable;
 import x590.util.annotation.Immutable;
 import x590.util.annotation.Nullable;
+
+import java.io.IOException;
 
 import static x590.chess.board.ChessBoard.SIZE;
 
@@ -13,7 +18,7 @@ import static x590.chess.board.ChessBoard.SIZE;
  * Неизменяемый класс, который представляет позицию поля на шахматной доске
  */
 @Immutable
-public final class Pos implements IStep {
+public final class Pos implements IStep, PacketOutputStreamWritable {
 
 	private static final Pos[][] INSTANCES = new Pos[SIZE][SIZE];
 
@@ -59,7 +64,7 @@ public final class Pos implements IStep {
 	}
 
 	/**
-	 * @return Позицию, смещённую на 1 по направлению {@code direction}
+	 * @return Позицию, смещённую по направлению {@code direction}
 	 * или {@code null}, если она выходит за пределы доски
 	 */
 	public @Nullable Pos relative(Direction direction) {
@@ -93,11 +98,26 @@ public final class Pos implements IStep {
 
 	@Override
 	public IMove asMove(Pos startPos, ChessBoard board) {
-		return new PosMove(startPos, this, board.getFigure(startPos));
+		return new PosMove(startPos, this, board.getFigure(startPos), board.getFigure(this));
+	}
+
+	@Override
+	public int getTag() {
+		return Tag.TAG_POS;
+	}
+
+	public static Pos read(PacketInputStream in) throws IOException {
+		return of(in.readByte(), in.readByte());
+	}
+
+	@Override
+	public void writeTo(PacketOutputStream out) throws IOException {
+		out.writeByte(x);
+		out.writeByte(y);
 	}
 
 
-	private record PosMove(Pos startPos, Pos targetPos, Figure figure) implements IMove {
+	private record PosMove(Pos startPos, Pos targetPos, Figure figure, @Nullable Figure takenFigure) implements IMove {
 
 		@Override
 		public Pos takePos() {
@@ -116,6 +136,10 @@ public final class Pos implements IStep {
 		return this == other; // Все экземпляры кэшируются, так что нет необходимости сравнивать поля
 	}
 
+	public boolean equals(int x, int y) {
+		return this.x == x && this.y == y;
+	}
+
 	@Override
 	public int hashCode() {
 		return (31 + x) * 31 + y;
@@ -124,9 +148,5 @@ public final class Pos implements IStep {
 	@Override
 	public String toString() {
 		return String.valueOf((char)('A' + x)) + (y + 1);
-	}
-
-	public boolean equals(int x, int y) {
-		return this.x == x && this.y == y;
 	}
 }

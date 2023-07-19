@@ -1,7 +1,7 @@
 package x590.chess.figure.behaviour;
 
 import x590.chess.board.ChessBoard;
-import x590.chess.Pos;
+import x590.chess.figure.Pos;
 import x590.chess.figure.Figure;
 import x590.chess.figure.Side;
 import x590.chess.figure.step.IStep;

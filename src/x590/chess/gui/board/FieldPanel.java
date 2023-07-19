@@ -2,7 +2,7 @@ package x590.chess.gui.board;
 
 import x590.chess.board.ChessBoard;
 import x590.chess.Main;
-import x590.chess.Pos;
+import x590.chess.figure.Pos;
 import x590.chess.figure.Figure;
 import x590.chess.figure.step.IStep;
 import x590.util.annotation.Nullable;
@@ -17,7 +17,7 @@ public class FieldPanel extends JPanel {
 	private static int PREFERRED_SIZE;
 	private static final Dimension PREFERRED_SIZE_DIMENSION = new Dimension();
 
-	private static final float SIZE_COEFFICIENT = 1 / 1.75f;
+	private static final float SIZE_COEFFICIENT = 1 / 1.8f;
 
 	static {
 		updateSize(Main.getFrame());
@@ -50,6 +50,8 @@ public class FieldPanel extends JPanel {
 
 	private final Pos pos;
 
+	private final BoardPanel boardPanel;
+
 	private final ChessBoard chessBoard;
 
 	private @Nullable IStep possibleStep;
@@ -58,6 +60,7 @@ public class FieldPanel extends JPanel {
 
 	public FieldPanel(int x, int y, BoardPanel boardPanel) {
 		this.pos = Pos.of(x, y);
+		this.boardPanel = boardPanel;
 		this.chessBoard = boardPanel.getChessBoard();
 
 		setBackground(((x ^ y) & 0x1) == 0 ? WHITE_FIELD_COLOR : BLACK_FIELD_COLOR);
@@ -66,31 +69,35 @@ public class FieldPanel extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (boardPanel.getSelected() != FieldPanel.this) {
+				if (canBeSelected()) {
 					if (chessBoard.getFigureSide(pos) == chessBoard.currentSide()) {
 						boardPanel.select(FieldPanel.this);
 					} else if (possibleStep != null) {
-						boardPanel.step(possibleStep);
+						boardPanel.makeStep(possibleStep);
 					}
 				}
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent event) {
-				if (boardPanel.getSelected() != FieldPanel.this && chessBoard.getFigureSide(pos) == chessBoard.currentSide()) {
+				if (canBeSelected() && chessBoard.getFigureSide(pos) == chessBoard.currentSide()) {
 					setBorder(BorderFactory.createLineBorder(HOVER_BORDER_COLOR, getBorderThickness()));
 				}
 			}
 
 			@Override
 			public void mouseExited(MouseEvent event) {
-				if (boardPanel.getSelected() != FieldPanel.this) {
+				if (canBeSelected()) {
 					unselect();
 				}
 			}
 		});
 
 		update();
+	}
+
+	private boolean canBeSelected() {
+		return boardPanel.canSelect(this);
 	}
 
 	public Pos getPos() {
@@ -102,7 +109,9 @@ public class FieldPanel extends JPanel {
 	}
 
 	public void update() {
-		setCursor(chessBoard.getFigureSide(pos) == chessBoard.currentSide() ? HAND_CURSOR : DEFAULT_CURSOR);
+		setCursor(chessBoard.getFigureSide(pos) == chessBoard.currentSide() && boardPanel.canSelect(this) ?
+				HAND_CURSOR :
+				DEFAULT_CURSOR);
 	}
 
 	public void select() {

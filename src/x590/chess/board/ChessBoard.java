@@ -1,9 +1,9 @@
 package x590.chess.board;
 
-import x590.chess.Pos;
+import x590.chess.figure.Pos;
 import x590.chess.figure.FigureType;
+import x590.chess.figure.move.IMove;
 import x590.chess.figure.step.IStep;
-import x590.chess.figure.step.IStep.Type;
 import x590.chess.figure.step.IStep.IExtraStep;
 import x590.chess.figure.Figure;
 import x590.chess.figure.Side;
@@ -11,7 +11,6 @@ import x590.chess.figure.step.StepResult;
 import x590.util.annotation.Immutable;
 import x590.util.annotation.Nullable;
 
-import javax.swing.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -26,6 +25,11 @@ public class ChessBoard {
 
 	/** Размер шахматной доски */
 	public static final int SIZE = 8;
+
+	/** Первая координата шахматной доски */
+	public static final int START = 0;
+
+	/** Последняя координата шахматной доски */
 	public static final int END = SIZE - 1;
 
 
@@ -52,8 +56,8 @@ public class ChessBoard {
 	};
 
 	private static final Pos
-			DEFULT_WHITE_KING_POS = Pos.of(4, 0),
-			DEFULT_BLACK_KING_POS = Pos.of(4, 7);
+			DEFULT_WHITE_KING_POS = Pos.of(4, START),
+			DEFULT_BLACK_KING_POS = Pos.of(4, END);
 
 
 	private final Figure[][] board;
@@ -61,7 +65,7 @@ public class ChessBoard {
 	private @Nullable AttackState[][] savedAttackStates;
 
 	/** Кэшированные варианты ходов */
-	private final Map<Pos, @Immutable Collection<? extends IStep>> steps = new HashMap<>();
+	private final Map<Pos, @Immutable Collection<? extends IStep>> cachedSteps = new HashMap<>();
 
 	private final SideData whiteData, blackData;
 
@@ -100,14 +104,14 @@ public class ChessBoard {
 
 	private void setDefaultBoardAndAttackStates() {
 		for (int i = 0; i < SIZE; i++) {
-			System.arraycopy(DEFAULT_BOARD[i], 0, board[i], 0, SIZE);
+			System.arraycopy(DEFAULT_BOARD[i],         0, board[i],        0, SIZE);
 			System.arraycopy(DEFAULT_ATTACK_STATES[i], 0, attackStates[i], 0, SIZE);
 		}
 	}
 
 	public void resetAllToDefault() {
 		setDefaultBoardAndAttackStates();
-		steps.clear();
+		cachedSteps.clear();
 		currentSide = Side.WHITE;
 		whiteData.resetAllToDefault(DEFULT_WHITE_KING_POS);
 		blackData.resetAllToDefault(DEFULT_BLACK_KING_POS);
@@ -116,16 +120,38 @@ public class ChessBoard {
 	}
 
 
+	/**
+	 * @return Фигуру на позиции {@code pos}
+	 */
 	public @Nullable Figure getFigure(Pos pos) {
 		return board[pos.getY()][pos.getX()];
 	}
 
-	public boolean hasFigure(Pos pos) {
-		return getFigure(pos) != null;
+	/**
+	 * @return Фигуру на позиции {@code pos}
+	 * @throws IllegalArgumentException если на указанной позиции нет фигуры
+	 */
+	public Figure getNonNullFigure(Pos pos) {
+		Figure figure = getFigure(pos);
+		if (figure != null)
+			return figure;
+
+		throw new IllegalArgumentException("There is no figure at " + pos);
 	}
 
-	public boolean freeAt(Pos pos) {
-		return getFigure(pos) == null;
+	/**
+	 * @return Фигуру на позиции {@code pos}, принадлежащую стороне {@code side}
+	 * @throws IllegalArgumentException если на указанной позиции нет фигуры
+	 * или она принадлежит другой стороне.
+	 */
+	private Figure getFigureWithSide(Pos pos, Side side) {
+		Figure figure = getNonNullFigure(pos);
+
+		if (figure.getSide() == side) {
+			return figure;
+		}
+
+		throw new IllegalArgumentException("Figure at " + pos + " has wrong side");
 	}
 
 	/**
@@ -134,17 +160,15 @@ public class ChessBoard {
 	 * или она принадлежит другой стороне.
 	 */
 	public Figure getFigureWithCurrentSide(Pos pos) {
-		Figure figure = getFigure(pos);
+		return getFigureWithSide(pos, currentSide);
+	}
 
-		if (figure == null) {
-			throw new IllegalArgumentException("There is no figure at " + pos);
-		}
+	public boolean hasFigure(Pos pos) {
+		return getFigure(pos) != null;
+	}
 
-		if (figure.getSide() != currentSide) {
-			throw new IllegalArgumentException("Figure at " + pos + " has wrong side");
-		}
-
-		return figure;
+	public boolean freeAt(Pos pos) {
+		return getFigure(pos) == null;
 	}
 
 	public Side currentSide() {
@@ -159,7 +183,7 @@ public class ChessBoard {
 	 * @return Варианты ходов для фигуры на позиции {@code atPos}
 	 */
 	public @Immutable Collection<? extends IStep> getPossibleSteps(Pos atPos) {
-		return steps.computeIfAbsent(atPos,
+		return cachedSteps.computeIfAbsent(atPos,
 				pos -> {
 					Collection<? extends IStep> steps = getFigureWithCurrentSide(pos).getPossibleSteps(this, pos);
 
@@ -223,6 +247,14 @@ public class ChessBoard {
 
 
 	/**
+	 * @return Номер текущего хода. Начинается с 0.
+	 * Каждые 2 хода (когда белые сделали ход и чёрные сделали ход) номер увеличивается
+	 */
+	public int getStepNumber() {
+		return currentData.getStepNumber();
+	}
+
+	/**
 	 * @return Позицию короля
 	 */
 	public Pos getKingPos() {
@@ -233,21 +265,21 @@ public class ChessBoard {
 	 * @return {@code true}, если король текущей стороны делал ход
 	 */
 	public boolean isKingWalked() {
-		return currentData.kingWalked;
+		return currentData.isKingWalked();
 	}
 
 	/**
 	 * @return {@code true}, если ладья на вертикали A делала ход
 	 */
 	public boolean isARookWalked() {
-		return currentData.aRookWalked;
+		return currentData.isARookWalked();
 	}
 
 	/**
 	 * @return {@code true}, если ладья на вертикали H делала ход
 	 */
 	public boolean isHRookWalked() {
-		return currentData.hRookWalked;
+		return currentData.isHRookWalked();
 	}
 
 	/**
@@ -260,53 +292,33 @@ public class ChessBoard {
 	/**
 	 * @return {@code true}, если список взятых фигур был изменён
 	 */
-	public boolean takenFiguresListChanged() {
-		return currentData.takenFiguresListChanged;
+	public boolean takenFiguresListChanged(Side side) {
+		return side.choose(whiteData, blackData).takenFiguresListChanged;
 	}
 
+
 	/**
-	 * Совершает ход фигурой текущей стороны с {@code startPos}.
-	 * Затем меняет сторону.
+	 * Совершает ход фигурой текущей стороны. Затем меняет сторону.
+	 * @param move объект, представляющий выполняемый ход.
 	 * @throws IllegalArgumentException если на указанной позиции нет фигуры,
 	 * она принадлежит другой стороне или ход невозможно совершить.
 	 */
-	public StepResult step(Pos startPos, IStep step) {
-		@Immutable Collection<? extends IStep> steps = getPossibleSteps(startPos);
+	public StepResult makeMove(IMove move) {
+		Pos startPos = move.startPos();
 
-		Figure newFigure;
-
-		if (step.type() == Type.TURNING_A_PAWN) {
-			Object[] icons = Figure.getPawnTurningIcons(currentSide);
-
-			int figureIndex;
-
-			do {
-				figureIndex = JOptionPane.showOptionDialog(
-						null, new JLabel("Выберите фигуру для превращения", SwingConstants.CENTER), "",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-						icons, icons[0]
-				);
-			} while (figureIndex == -1);
-
-			newFigure = currentSide.choose(WHITE_PAWN_TURNING_FIGURES, BLACK_PAWN_TURNING_FIGURES).get(figureIndex);
-
-		} else {
-			newFigure = step.resultFigure();
+		if (getPossibleSteps(startPos).stream().noneMatch(possibleStep -> IStep.equalsIgnoreResultFigure(move, possibleStep))) {
+			throw new IllegalArgumentException("Cannot perform step from " + startPos + " to " + move);
 		}
 
-		if (!steps.contains(step)) {
-			throw new IllegalArgumentException("Cannot perform step from " + startPos + " to " + step);
-		}
-
-		Figure takenFigure = performStep(startPos, step, newFigure, true);
+		Figure takenFigure = performStep(startPos, move, move.queryResultFigure(currentSide), true);
 
 		updateAttackStates();
-		this.steps.clear();
+		cachedSteps.clear();
 
 		final var currentSide = this.currentSide = this.currentSide.opposite();
 		currentData = currentSide.choose(whiteData, blackData);
 
-		lastStep = step;
+		lastStep = move;
 
 		if (takenFigure != null) {
 			currentData.addTakenFigure(takenFigure);
@@ -324,6 +336,27 @@ public class ChessBoard {
 		}
 
 		return kingAttacked ? StepResult.CHECK : StepResult.CONTINUE;
+	}
+
+	public void cancelMove(IMove move, @Nullable IStep prevStep) {
+		@Nullable Figure takenFigure = move.takenFigure();
+
+		if (takenFigure != null) {
+			currentData.removeTakenFigure(takenFigure);
+			currentData.takenFiguresListChanged = true;
+		} else {
+			currentData.takenFiguresListChanged = false;
+		}
+
+		currentSide = currentSide.opposite();
+		currentData = currentSide.choose(whiteData, blackData);
+
+		lastStep = prevStep;
+
+		cachedSteps.clear();
+		updateAttackStates();
+
+		cancelStep(move.startPos(), move, move.figure(), takenFigure);
 	}
 
 	private @Nullable Figure performStep(Pos startPos, IStep step, @Nullable Figure newFigure, boolean updateWalkedFlags) {
@@ -347,20 +380,23 @@ public class ChessBoard {
 
 		final var currentData = this.currentData;
 
+		currentData.makeStep();
+
 		if (figure.getType() == FigureType.KING && startPos.equals(currentData.kingPos)) {
 			currentData.kingPos = targetPos;
-			if (updateWalkedFlags)
-				currentData.kingWalked = true;
+			if (updateWalkedFlags) {
+				currentData.setKingWalked();
+			}
 
 		} else if (figure.getType() == FigureType.ROOK && updateWalkedFlags) {
-			if (!currentData.aRookWalked && startPos.equals(0, currentSide.getStartY())) {
-				currentData.aRookWalked = true;
-			} else if (!currentData.hRookWalked && startPos.equals(7, currentSide.getStartY())) {
-				currentData.hRookWalked = true;
+			if (!currentData.isARookWalked() && startPos.equals(0, currentSide.getStartY())) {
+				currentData.setARookWalked();
+			} else if (!currentData.isHRookWalked() && startPos.equals(7, currentSide.getStartY())) {
+				currentData.setHRookWalked();
 			}
 		}
 
-		IExtraStep extraStep = step.extraStep();
+		@Nullable IExtraStep extraStep = step.extraStep();
 
 		if (extraStep != null) {
 			if (performStep(extraStep.startPos(), extraStep, extraStep.resultFigure(), updateWalkedFlags) != null) {
@@ -385,6 +421,8 @@ public class ChessBoard {
 		if (targetPos.equals(currentData.kingPos)) {
 			currentData.kingPos = startPos;
 		}
+
+		currentData.cancelStep();
 
 		IExtraStep extraStep = step.extraStep();
 
@@ -428,7 +466,7 @@ public class ChessBoard {
 
 	/**
 	 * @param eachFunction Функция, которая применяется к каждой фигуре.
-	 *                     Если она возврашает {@code false}, итерация прерывается
+	 *                     Если она возвращает {@code false}, итерация прерывается
 	 * @return {@code true} если для всех фигур {@code eachFunction} вернул {@code true}
 	 */
 	private boolean isEachFigure(BiPredicate<Figure, Pos> eachFunction) {

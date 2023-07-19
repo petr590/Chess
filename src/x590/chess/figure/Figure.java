@@ -2,16 +2,16 @@ package x590.chess.figure;
 
 import x590.chess.figure.step.IStep;
 import x590.chess.board.ChessBoard;
-import x590.chess.Pos;
 import x590.chess.figure.behaviour.FigureBehaviour;
 import x590.chess.figure.behaviour.FigureBehaviours;
 import x590.chess.gui.board.FieldPanel;
 import x590.util.annotation.Immutable;
+import x590.util.annotation.RemoveIfNotUsed;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
@@ -35,14 +35,14 @@ public enum Figure {
 
 	private static final Figure[] VALUES = values();
 
-	private static final Map<Side, Map<FigureType, Figure>> FIGURES =
+	private static final @Immutable Map<Side, Map<FigureType, Figure>> FIGURES =
 			Map.of(
 					Side.WHITE, new EnumMap<>(FigureType.class),
 					Side.BLACK, new EnumMap<>(FigureType.class)
 			);
 
 	static {
-		for (Figure figure : values()) {
+		for (Figure figure : VALUES) {
 			FIGURES.get(figure.side).put(figure.type, figure);
 		}
 	}
@@ -62,9 +62,12 @@ public enum Figure {
 		this.side = side;
 		this.type = type;
 		this.emoji = emoji;
+
+		String path = "textures/" + side.getDirectory() + '/' + type.getFileName();
 		
-		try {
-			this.image = this.originalImage = ImageIO.read(new File("textures/" + side.getDirectory() + '/' + type.getFileName()));
+		try(var in = ClassLoader.getSystemClassLoader().getResourceAsStream(path)) {
+			this.image = this.originalImage = ImageIO.read(in != null ? in : new FileInputStream(path));
+
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
 		}
@@ -98,7 +101,7 @@ public enum Figure {
 			whitePawnTurningFigures.add(whiteFigure);
 			blackPawnTurningFigures.add(blackFigure);
 			whitePawnTurningIcons.add(whiteFigure.icon);
-			blackPawnTurningIcons.add(whiteFigure.icon);
+			blackPawnTurningIcons.add(blackFigure.icon);
 		}
 
 		WHITE_PAWN_TURNING_FIGURES = Collections.unmodifiableList(whitePawnTurningFigures);
@@ -124,8 +127,12 @@ public enum Figure {
 		}
 	}
 
-	public static Object[] getPawnTurningIcons(Side side) {
-		return side.choose(WHITE_PAWN_TURNING_ICONS, BLACK_PAWN_TURNING_ICONS).toArray();
+	public static @Immutable List<Figure> getPawnTurningFigures(Side side) {
+		return side.choose(WHITE_PAWN_TURNING_FIGURES, BLACK_PAWN_TURNING_FIGURES);
+	}
+
+	public static @Immutable List<Icon> getPawnTurningIcons(Side side) {
+		return side.choose(WHITE_PAWN_TURNING_ICONS, BLACK_PAWN_TURNING_ICONS);
 	}
 
 
@@ -149,6 +156,7 @@ public enum Figure {
 		return image;
 	}
 
+	@RemoveIfNotUsed
 	public ImageIcon getIcon() {
 		return icon;
 	}

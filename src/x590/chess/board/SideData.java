@@ -1,6 +1,6 @@
 package x590.chess.board;
 
-import x590.chess.Pos;
+import x590.chess.figure.Pos;
 import x590.chess.figure.Figure;
 import x590.util.annotation.Immutable;
 
@@ -17,21 +17,78 @@ final class SideData {
 
 	Pos kingPos;
 
-	boolean kingWalked, aRookWalked, hRookWalked;
+	private int step;
+
+	private int kingWalkedStep, aRookWalkedStep, hRookWalkedStep;
 
 	SideData(Pos kingPos) {
 		this.kingPos = kingPos;
 	}
 
-	public void addTakenFigure(Figure takenFigure) {
+	void addTakenFigure(Figure takenFigure) {
 		final var takenFigures = this.takenFigures;
 		takenFigures.add(takenFigure);
 		takenFigures.sort(Comparator.naturalOrder());
 	}
 
-	public void resetAllToDefault(Pos defaultKingPos) {
+	int getStepNumber() {
+		return step;
+	}
+
+	void removeTakenFigure(Figure takenFigure) {
+		takenFigures.remove(takenFigure);
+	}
+
+	void makeStep() {
+		step++;
+	}
+
+	void cancelStep() {
+		step--;
+		if (kingWalkedStep > step) {
+			kingWalkedStep = 0;
+		}
+		if (aRookWalkedStep > step) {
+			aRookWalkedStep = 0;
+		}
+		if (hRookWalkedStep > step) {
+			hRookWalkedStep = 0;
+		}
+	}
+
+	void setKingWalked() {
+		if (kingWalkedStep != 0) {
+			kingWalkedStep = step;
+		}
+	}
+
+	void setARookWalked() {
+		if (aRookWalkedStep != 0) {
+			aRookWalkedStep = step;
+		}
+	}
+
+	void setHRookWalked() {
+		if (hRookWalkedStep != 0) {
+			hRookWalkedStep = step;
+		}
+	}
+
+	boolean isKingWalked() {
+		return kingWalkedStep != 0;
+	}
+
+	boolean isARookWalked() {
+		return aRookWalkedStep != 0;
+	}
+
+	boolean isHRookWalked() {
+		return hRookWalkedStep != 0;
+	}
+
+	void resetAllToDefault(Pos defaultKingPos) {
 		takenFigures.clear();
 		kingPos = defaultKingPos;
-		kingWalked = aRookWalked = hRookWalked = false;
+		kingWalkedStep = aRookWalkedStep = hRookWalkedStep = -1;
 	}
 }

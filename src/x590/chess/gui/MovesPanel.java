@@ -2,6 +2,9 @@ package x590.chess.gui;
 
 import x590.chess.figure.move.IMove;
 import x590.chess.gui.board.BoardPanel;
+import x590.chess.gui.board.LinkedPanel;
+import x590.util.Util;
+import x590.util.annotation.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -9,7 +12,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovesPanel extends JPanel {
+/**
+ * Представляет панель с прокручиваемым списком ходов
+ */
+public class MovesPanel extends LinkedPanel {
 
 	private static final Color BORDER_COLOR = BoardPanel.BORDER_COLOR;
 
@@ -37,7 +43,7 @@ public class MovesPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(container) {
 			@Override
 			public Dimension getPreferredSize() {
-				if (moves.isEmpty()) {
+				if (container.getComponentCount() == 0) {
 					return new Dimension(0, 0);
 				}
 
@@ -52,25 +58,84 @@ public class MovesPanel extends JPanel {
 	}
 
 	@Override
-	public Dimension getPreferredSize() {
-		Dimension preferredSize = super.getPreferredSize();
+	protected Dimension originalPreferredSize() {
+		Dimension preferredSize = super.originalPreferredSize();
 		preferredSize.height = boardPanel.getHeight();
 		return preferredSize;
 	}
 
 	public void addMove(IMove move) {
+		removeCanceledMoves();
 		container.add(new MovePanel(move, moves.isEmpty()));
 		moves.add(move);
+		revalidate();
+	}
+
+	private void removeCanceledMoves() {
+		int componentsCount = container.getComponentCount();
+		int movesCount = moves.size();
+
+		for (int i = componentsCount; i > movesCount; ) {
+			container.remove(--i);
+		}
+	}
+
+	public @Nullable IMove getLastMove() {
+		int lastIndex = moves.size() - 1;
+		return lastIndex == -1 ? null : moves.get(lastIndex);
+	}
+
+	public @Nullable IMove repeatLastCanceledMove() {
+		int movesCount = moves.size();
+
+		if (container.getComponentCount() > movesCount) {
+			MovePanel movePanel = (MovePanel) container.getComponent(movesCount);
+			movePanel.makeUncanceled();
+			return Util.addAndGetBack(moves, movePanel.getMove());
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * @return Последний неотменённый ход или {@code null}, если таких ходов нет
+	 */
+	public @Nullable IMove cancelLastMove() {
+		if (moves.isEmpty()) {
+			return null;
+		}
+
+		int lastIndex = moves.size() - 1;
+		((MovePanel)container.getComponent(lastIndex)).makeCanceled();
+		return moves.remove(lastIndex);
 	}
 
 	private static class MovePanel extends JPanel {
 
+		private static final Color CANCELED_COLOR = new Color(0xB3B3B3);
+
+		private final IMove move;
+
 		public MovePanel(IMove move, boolean first) {
+			this.move = move;
 			add(new JLabel(move.toConvenientString()));
 
 			if (!first) {
 				setBorder(BorderFactory.createMatteBorder(BORDER_THICKNESS, 0, 0, 0, BORDER_COLOR));
 			}
+		}
+
+		public IMove getMove() {
+			return move;
+		}
+
+		public void makeCanceled() {
+			getComponent(0).setForeground(CANCELED_COLOR);
+		}
+
+		public void makeUncanceled() {
+			getComponent(0).setForeground(null);
 		}
 	}
 }

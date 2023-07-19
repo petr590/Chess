@@ -1,6 +1,6 @@
 package x590.chess.figure.behaviour;
 
-import x590.chess.Direction;
+import x590.chess.figure.Direction;
 
 public class FigureBehaviours {
 
