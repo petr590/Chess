@@ -5,7 +5,7 @@ public final class Worth {
 	private Worth() {}
 
 	public static final int
-			KING = Integer.MAX_VALUE,
+			KING = 0xFF,
 			QUEEN = 9,
 			ROOK = 5,
 			BISHOP = 3,

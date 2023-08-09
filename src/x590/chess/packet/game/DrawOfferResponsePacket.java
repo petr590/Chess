@@ -1,14 +1,18 @@
 package x590.chess.packet.game;
 
+import x590.chess.Main;
 import x590.chess.gui.GuiUtil;
 import x590.chess.gui.board.BoardPanel;
 import x590.chess.io.PacketInputStream;
 import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.AbstractPacket;
-import x590.chess.playingside.RemotePlayingSide;
+import x590.chess.playingside.remote.RemotePlayingSide;
 
 import java.io.IOException;
 
+/**
+ * Ответ на предложение ничьи
+ */
 public class DrawOfferResponsePacket extends AbstractPacket {
 
 	public static final String NAME = "DrawOfferResponse";
@@ -30,13 +34,23 @@ public class DrawOfferResponsePacket extends AbstractPacket {
 		out.writeBoolean(agree);
 	}
 
+	private static final String
+			OK = "Ок",
+			EXIT = "Выйти";
+
 	@Override
 	public void handle(RemotePlayingSide playingSide, BoardPanel boardPanel) {
-		GuiUtil.showPlainMessageDialog(playingSide.getName() +
-				(agree ? " согласился на ничью" : " отказался от ничьей"));
+		if (!agree) {
+			GuiUtil.showPlainMessageDialog(playingSide.getName() + " отказался от ничьей");
+		} else {
+			boardPanel.endGame("Ничья");
 
-		if (agree) {
-			playingSide.onGameEnd();
+			String result = GuiUtil.showOptionDialog(playingSide.getName() + " согласился на ничью", "",
+					OK, EXIT);
+
+			if (EXIT.equals(result)) {
+				Main.exitNormally();
+			}
 		}
 	}
 }

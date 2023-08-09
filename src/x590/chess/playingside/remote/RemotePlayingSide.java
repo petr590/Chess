@@ -1,4 +1,4 @@
-package x590.chess.playingside;
+package x590.chess.playingside.remote;
 
 import x590.chess.Main;
 import x590.chess.figure.move.IMove;
@@ -10,6 +10,7 @@ import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.*;
 import x590.chess.packet.game.*;
 import x590.chess.packet.setup.SayNamePacket;
+import x590.chess.playingside.PlayingSide;
 import x590.util.Logger;
 import x590.util.annotation.Nullable;
 
@@ -29,9 +30,9 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class RemotePlayingSide implements PlayingSide {
 
-	protected @Nullable Socket socket;
-	protected @Nullable PacketInputStream in;
-	protected @Nullable PacketOutputStream out;
+	protected volatile @Nullable Socket socket;
+	protected volatile @Nullable PacketInputStream in;
+	protected volatile @Nullable PacketOutputStream out;
 
 	private String name = "unknown";
 
@@ -49,8 +50,6 @@ public abstract class RemotePlayingSide implements PlayingSide {
 			OFFER_A_DRAW = "Предложить ничью",
 			CANCEL = "Отмена";
 
-	private boolean closeFrameOnGameEnd;
-
 	protected boolean showMessageOnException = true;
 
 	public RemotePlayingSide() {
@@ -60,42 +59,43 @@ public abstract class RemotePlayingSide implements PlayingSide {
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent event) {
-				if (socket == null) {
+				if (socket == null) { // Нет подключения
 					onGameEnd(true);
 				} else if (!socket.isClosed()) {
 					String result = GuiUtil.showOptionDialog("", "",
 							 GIVE_UP, OFFER_A_DRAW, CANCEL);
 
-					switch (result) {
-						case GIVE_UP -> {
-							giveUp();
-							onGameEnd(true);
-						}
-
-						case OFFER_A_DRAW -> {
-							closeFrameOnGameEnd = true;
-
-							if (boardPanel != null) {
-								boardPanel.lockDrawOfferButton();
+					if (result != null) {
+						switch (result) {
+							case GIVE_UP -> {
+								onGiveUp();
+								onGameEnd(true);
 							}
 
-							offerADraw();
+							case OFFER_A_DRAW -> {
+								if (boardPanel != null) {
+									boardPanel.lockDrawOfferButton();
+								}
+
+								offerADraw();
+							}
 						}
-						case CANCEL -> {}
 					}
-				} else {
-					Main.exit();
+				} else { // Соединение закрыто
+					Main.exitNormally();
 				}
 			}
 		});
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+		boardPanel.setOpponentName(name);
 	}
 
 	public abstract int getOfferADrawTimeout();
@@ -107,7 +107,6 @@ public abstract class RemotePlayingSide implements PlayingSide {
 		executor.execute(() -> {
 			try {
 				run(boardPanel);
-
 			} catch (IOException ex) {
 				if (showMessageOnException) {
 					GuiUtil.showPlainMessageDialog(ex);
@@ -123,6 +122,9 @@ public abstract class RemotePlayingSide implements PlayingSide {
 		});
 	}
 
+	/**
+	 * Запускает игру. Вызывается в фоновом потоке.
+	 */
 	protected abstract void run(BoardPanel boardPanel) throws IOException;
 
 	/**
@@ -133,7 +135,7 @@ public abstract class RemotePlayingSide implements PlayingSide {
 	}
 
 	/**
-	 * Принимает пакеты из потока {@code in}. Число проверок в секунду зависит от {@link #SLEEP_TIME_MILLIS}
+	 * Принимает пакеты из потока {@code in}. Число проверок в секунду зависит от {@link #SLEEP_TIME_MILLIS}.
 	 * Этот метод должен запускаться в фоновом потоке
 	 */
 	protected void receivePackets(BoardPanel boardPanel, Socket socket, PacketInputStream in) throws IOException {
@@ -184,7 +186,7 @@ public abstract class RemotePlayingSide implements PlayingSide {
 		sendPacketIfPossible(OfferADrawPacket.getInstance());
 	}
 
-	public void giveUp() {
+	public void onGiveUp() {
 		sendPacketIfPossible(GiveUpPacket.getInstance());
 	}
 
@@ -206,7 +208,7 @@ public abstract class RemotePlayingSide implements PlayingSide {
 
 	@Override
 	public void onGameEnd() {
-		onGameEnd(closeFrameOnGameEnd);
+		onGameEnd(false);
 	}
 
 	public void onGameEnd(boolean closeFrame) {
@@ -226,10 +228,10 @@ public abstract class RemotePlayingSide implements PlayingSide {
 
 				try {
 					if (!executor.awaitTermination(10, TimeUnit.MILLISECONDS)) {
-						Logger.log("Failed to stop background thread");
+						Logger.warning("Failed to stop background thread");
 					}
 				} catch (InterruptedException ex) {
-					Logger.log("Failed to stop background thread: " + ex);
+					Logger.warning("Failed to stop background thread: " + ex);
 				}
 			}
 
@@ -237,7 +239,7 @@ public abstract class RemotePlayingSide implements PlayingSide {
 			throw new UncheckedIOException(ex);
 		} finally {
 			if (closeFrame) {
-				Main.exit();
+				Main.exitNormally();
 			}
 		}
 	}
@@ -249,16 +251,11 @@ public abstract class RemotePlayingSide implements PlayingSide {
 
 	@Override
 	public boolean canMakeMove() {
-		return true;
-	}
-
-	@Override
-	public boolean canSelectField() {
 		return false;
 	}
 
 	@Override
-	public boolean canCancelMove() {
+	public boolean canSelectField() {
 		return false;
 	}
 }

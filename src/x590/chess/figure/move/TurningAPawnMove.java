@@ -5,6 +5,7 @@ import x590.chess.figure.Figure;
 import x590.chess.figure.FigureType;
 import x590.chess.figure.Side;
 import x590.chess.gui.GuiUtil;
+import x590.chess.playingside.PlayingSide;
 import x590.util.annotation.Nullable;
 
 import java.util.List;
@@ -63,20 +64,13 @@ public class TurningAPawnMove implements IMove {
 	}
 
 	@Override
-	public Figure queryResultFigure(Side side) {
+	public Figure queryResultFigure(Side side, PlayingSide currentPlayingSide) {
 		Figure resultFigure = this.resultFigure;
 
 		if (resultFigure != null) {
 			return resultFigure;
 		}
 
-		Object[] icons = Figure.getPawnTurningIcons(side).toArray();
-		List<Figure> figures = Figure.getPawnTurningFigures(side);
-
-		do {
-			resultFigure = GuiUtil.showOptionDialog("Выберите фигуру для превращения", "", icons, figures);
-		} while (resultFigure == null);
-
-		return this.resultFigure = resultFigure;
+		return this.resultFigure = currentPlayingSide.queryPawnTurningFigure(side);
 	}
 }

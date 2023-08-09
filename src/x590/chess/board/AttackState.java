@@ -1,36 +1,31 @@
 package x590.chess.board;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import x590.chess.figure.Figure;
 import x590.chess.figure.Side;
+import x590.util.annotation.Immutable;
+import x590.util.annotation.Nullable;
 
 /**
- * Показывает, какой стороной атаковано поле
+ * Показывает, кем атаковано поле
  */
-public enum AttackState {
-	NOT_ATTACKED      (false, false),
-	ATTACKED_BY_WHITE (true, false),
-	ATTACKED_BY_BLACK (false, true),
-	ATTACKED_BY_BOTH  (true, true);
+public interface AttackState {
 
-	static {
-		NOT_ATTACKED.stateAttackedByWhite = ATTACKED_BY_WHITE;
-		NOT_ATTACKED.stateAttackedByBlack = ATTACKED_BY_BLACK;
-		ATTACKED_BY_WHITE.stateAttackedByBlack = ATTACKED_BY_BOTH;
-		ATTACKED_BY_BLACK.stateAttackedByWhite = ATTACKED_BY_BOTH;
-	}
+	/**
+	 * @return {@code true}, если поле атаковано указанной стороной
+	 */
+	boolean isAttackedBy(Side side);
 
-	private final boolean attackedByWhite, attackedByBlack;
-	private AttackState stateAttackedByWhite = this, stateAttackedByBlack = this;
+	/**
+	 * @return {@link AttackState}, атакованное переданной фигурой
+	 */
+	AttackState attackedBy(Figure figure);
 
-	AttackState(boolean attackedByWhite, boolean attackedByBlack) {
-		this.attackedByWhite = attackedByWhite;
-		this.attackedByBlack = attackedByBlack;
-	}
-
-	public boolean isAttackedBy(Side side) {
-		return side.choose(attackedByWhite, attackedByBlack);
-	}
-
-	public AttackState attackedBy(Side side) {
-		return side.choose(stateAttackedByWhite, stateAttackedByBlack);
+	/**
+	 * @return Список всех фигур, которыми было атаковано поле
+	 *         или {@code null}, если запоминание фигур не поддерживается
+	 */
+	default @Nullable @Immutable Object2IntMap<Figure> getFigures() {
+		return null;
 	}
 }

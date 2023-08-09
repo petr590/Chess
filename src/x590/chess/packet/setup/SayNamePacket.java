@@ -4,13 +4,13 @@ import x590.chess.gui.board.BoardPanel;
 import x590.chess.io.PacketInputStream;
 import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.AbstractPacket;
-import x590.chess.playingside.RemotePlayingSide;
+import x590.chess.playingside.remote.RemotePlayingSide;
 
 import java.io.IOException;
 
 /**
  * Пакет, который сообщает имя игрока.<br>
- *
+ * <br>
  * <b>P.S.</b><br>
  * Say my name!<br>
  * You are the magic, マボロシ!<br>

@@ -8,13 +8,12 @@ import x590.chess.figure.move.Move;
 import x590.chess.figure.step.IStep;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class KingBehaviour extends AbstractFigureBehaviour {
 
 	@Override
-	public Collection<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type) {
+	public List<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type) {
 		List<Pos> possibleSteps = new ArrayList<>();
 
 		for (Direction direction : Direction.VERTICAL_HORIZONTAL_AND_DIAGONAL) {
@@ -29,10 +28,10 @@ public class KingBehaviour extends AbstractFigureBehaviour {
 	}
 
 	@Override
-	public Collection<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current) {
+	public List<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current) {
 
 		@SuppressWarnings("unchecked")
-		Collection<IStep> possibleSteps = (Collection<IStep>) super.getPossibleSteps(board, side, current);
+		List<IStep> possibleSteps = (List<IStep>) super.getPossibleSteps(board, side, current);
 
 		int startY = side.getStartY();
 

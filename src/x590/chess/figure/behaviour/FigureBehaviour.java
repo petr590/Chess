@@ -5,7 +5,7 @@ import x590.chess.board.ChessBoard;
 import x590.chess.figure.Pos;
 import x590.chess.figure.Side;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Описывает поведение фигуры
@@ -17,7 +17,7 @@ public interface FigureBehaviour {
 	 * @param board шахматная доска
 	 * @param side сторона фигуры
 	 * @param current текущая позиция фигуры */
-	Collection<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current);
+	List<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current);
 
 	/** @return Список полей, которые контролирует фигура
 	 * (в том числе и занятые своими или вражескими фигурами).
@@ -25,5 +25,5 @@ public interface FigureBehaviour {
 	 * @param board шахматная доска
 	 * @param side сторона фигуры
 	 * @param current текущая позиция фигуры */
-	Collection<Pos> getControlledFields(ChessBoard board, Side side, Pos current);
+	List<Pos> getControlledFields(ChessBoard board, Side side, Pos current);
 }

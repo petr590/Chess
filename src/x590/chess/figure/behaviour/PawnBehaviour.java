@@ -13,7 +13,6 @@ import x590.chess.figure.Side;
 import x590.util.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class PawnBehaviour implements FigureBehaviour {
@@ -23,7 +22,7 @@ public class PawnBehaviour implements FigureBehaviour {
 			DOUBLE_STEP_Y_BLACK = ChessBoard.END - 1;
 
 	@Override
-	public Collection<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos startPos) {
+	public List<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos startPos) {
 		List<IStep> possibleSteps = new ArrayList<>();
 
 		Direction forward = side.choose(Direction.UP, Direction.DOWN);
@@ -77,7 +76,7 @@ public class PawnBehaviour implements FigureBehaviour {
 	}
 
 	@Override
-	public Collection<Pos> getControlledFields(ChessBoard board, Side side, Pos startPos) {
+	public List<Pos> getControlledFields(ChessBoard board, Side side, Pos startPos) {
 		List<Pos> possibleSteps = new ArrayList<>();
 
 		Pos forwardPos = startPos.relative(side.choose(Direction.UP, Direction.DOWN));
@@ -90,20 +89,20 @@ public class PawnBehaviour implements FigureBehaviour {
 		return possibleSteps;
 	}
 
-	private static void addStepIfCanTake(Collection<? super IStep> possibleSteps, ChessBoard board, Side side, Pos startPos, @Nullable Pos targetPos) {
+	private static void addStepIfCanTake(List<? super IStep> possibleSteps, ChessBoard board, Side side, Pos startPos, @Nullable Pos targetPos) {
 		if (targetPos != null && board.canFigureBeTookBy(targetPos, side)) {
 			addTurningAPawnStepsOrPlainStep(possibleSteps, board, side, startPos, targetPos);
 		}
 	}
 
-	private static void addPosIfCanTake(Collection<? super Pos> possibleSteps, ChessBoard board, Side side, @Nullable Pos targetPos) {
+	private static void addPosIfCanTake(List<? super Pos> possibleSteps, ChessBoard board, Side side, @Nullable Pos targetPos) {
 		if (targetPos != null && board.canFigureBeTookBy(targetPos, side)) {
 			possibleSteps.add(targetPos);
 		}
 	}
 
 	/** Добавляет в коллекцию ход пешки с превращением, если возможно, иначе просто ход */
-	private static void addTurningAPawnStepsOrPlainStep(Collection<? super IStep> steps, ChessBoard board, Side side, Pos startPos, Pos targetPos) {
+	private static void addTurningAPawnStepsOrPlainStep(List<? super IStep> steps, ChessBoard board, Side side, Pos startPos, Pos targetPos) {
 		steps.add(targetPos.getY() == side.getEndY() ?
 				new TurningAPawnMove(startPos, targetPos, side, board.getFigure(targetPos)) :
 				targetPos);

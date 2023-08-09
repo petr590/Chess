@@ -1,12 +1,8 @@
 package x590.chess.gui;
 
 import x590.chess.Main;
-import x590.chess.figure.Figure;
-import x590.chess.gui.board.CornerPanel;
 import x590.chess.gui.board.FieldPanel;
-import x590.chess.gui.board.IndexPanel;
 import x590.util.annotation.Nullable;
-import x590.util.annotation.RemoveIfNotUsed;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,50 +17,60 @@ public final class GuiUtil {
 
 
 	@SafeVarargs
-	public static <T> @Nullable T showOptionDialog(String text, String title, T... values) {
-		return showOptionDialog(text, title, values, values);
+	public static <T> @Nullable T showOptionDialog(Object message, String title, T... values) {
+		return showOptionDialog(message, title, values, values);
 	}
 
-	public static <T> @Nullable T showOptionDialog(String text, String title, Object[] options, List<? extends T> values) {
+	public static <T> @Nullable T showOptionDialog(Object message, String title, Object[] options, List<? extends T> values) {
 		checkLengthsEquals(options.length, values.size());
-		return showOptionDialog(text, title, options, values::get);
+		return showOptionDialog(message, title, options, values::get);
 	}
 
 	@SafeVarargs
-	public static <T> @Nullable T showOptionDialog(String text, String title, Object[] options, T... values) {
+	public static <T> @Nullable T showOptionDialog(Object message, String title, Object[] options, T... values) {
 		checkLengthsEquals(options.length, values.length);
-		return showOptionDialog(text, title, options, choose -> values[choose]);
+		return showOptionDialog(message, title, options, choose -> values[choose]);
 	}
 
-	private static <T> @Nullable T showOptionDialog(String text, String title, Object[] options, IntFunction<T> elementGetter) {
-		int chose = JOptionPane.showOptionDialog(
-				Main.getFrame(), new JLabel(text, SwingConstants.CENTER), title,
-				JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				options, null
+	private static <T> @Nullable T showOptionDialog(Object message, String title, Object[] options, IntFunction<T> elementGetter) {
+		int chose = showOptionDialog(
+				message, title,
+				JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+				options
 		);
 
 		return chose == JOptionPane.CLOSED_OPTION ? null : elementGetter.apply(chose);
 	}
 
-	public static boolean showYesNoOptionDialog(String text, String title) {
-		return showYesNoOptionDialog(text, title, "Да", "Нет");
+	private static int showOptionDialog(Object message, String title, int optionType, int messageType, Object[] options) {
+		return JOptionPane.showOptionDialog(
+				Main.getFrame(),
+				(message instanceof String text ? new JLabel(text, SwingConstants.CENTER) : message),
+				title, optionType, messageType, null,
+				options, null
+		);
 	}
 
-	public static boolean showYesNoOptionDialog(String text, String title, Object... options) {
-		int chose = JOptionPane.showOptionDialog(
-				Main.getFrame(), new JLabel(text, SwingConstants.CENTER), title,
-				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				options, null
+
+	public static boolean showYesNoOptionDialog(Object message, String title) {
+		return showYesNoOptionDialog(message, title, "Да", "Нет");
+	}
+
+	public static boolean showYesNoOptionDialog(Object message, String title, Object... options) {
+		int chose = showOptionDialog(
+				message, title,
+				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE,
+				options
 		);
 
 		return chose == JOptionPane.YES_OPTION;
 	}
 
-	public static int showYesNoCancelOptionDialog(String text, String title, Object... options) {
-		return JOptionPane.showOptionDialog(
-				Main.getFrame(), new JLabel(text, SwingConstants.CENTER), title,
-				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				options, null
+	public static int showYesNoCancelOptionDialog(Object message, String title, Object... options) {
+		return showOptionDialog(
+				message, title,
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+				options
 		);
 	}
 
@@ -98,17 +104,14 @@ public final class GuiUtil {
 	}
 
 
-	private static final int TOOLTIP_PADDING = 8;
+	private static final int TOOLTIP_PADDING = 10;
 
 	public static void setup(JFrame frame) {
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent event) {
 				FieldPanel.updateSize(frame);
-				IndexPanel.updateSize();
-				CornerPanel.updateSize();
-				Figure.updateSize();
-				TakenFiguresPanel.updateSize();
+				ResizeableObject.updateSize();
 			}
 		});
 

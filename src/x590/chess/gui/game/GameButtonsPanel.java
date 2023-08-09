@@ -1,6 +1,7 @@
-package x590.chess.gui;
+package x590.chess.gui.game;
 
-import x590.chess.gui.board.LinkedPanel;
+import x590.chess.gui.GuiUtil;
+import x590.chess.gui.linked.LinkedPanel;
 import x590.util.annotation.Nullable;
 
 import javax.swing.*;
@@ -17,8 +18,9 @@ public class GameButtonsPanel extends LinkedPanel {
 	private static final int PADDING = 16;
 
 	private final @Nullable JButton drawOfferButton;
+	private final JButton giveUpButton;
 
-	public GameButtonsPanel(GamePanel gamePanel, LinkedPanel other) {
+	public GameButtonsPanel(GamePanel gamePanel, LinkedPanel other, boolean lockGameEndButtons) {
 		super(other);
 
 		setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
@@ -38,7 +40,7 @@ public class GameButtonsPanel extends LinkedPanel {
 			this.drawOfferButton = null;
 		}
 
-		var giveUpButton = new JButton("Сдаться");
+		this.giveUpButton = new JButton("Сдаться");
 		giveUpButton.addActionListener(event -> {
 			if (GuiUtil.showYesNoOptionDialog("Вы уверены?", "")) {
 				gamePanel.giveUp();
@@ -48,6 +50,10 @@ public class GameButtonsPanel extends LinkedPanel {
 		content.add(giveUpButton);
 
 		add(content);
+
+		if (lockGameEndButtons) {
+			lockGameEndButtons();
+		}
 	}
 
 	/**
@@ -64,5 +70,25 @@ public class GameButtonsPanel extends LinkedPanel {
 	public void unlockDrawOfferButton() {
 		if (drawOfferButton != null)
 			drawOfferButton.setEnabled(true);
+	}
+
+	/**
+	 * Заблокирует кнопки "Сдаться" и "Предложить ничью"
+	 */
+	public void lockGameEndButtons() {
+		lockDrawOfferButton();
+		giveUpButton.setEnabled(false);
+	}
+
+	/**
+	 * Разблокирует кнопки "Сдаться" и "Предложить ничью"
+	 */
+	public void unlockGameEndButtons() {
+		unlockDrawOfferButton();
+		giveUpButton.setEnabled(true);
+	}
+
+	public void onGameEnd() {
+		lockGameEndButtons();
 	}
 }

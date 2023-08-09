@@ -7,7 +7,7 @@ import x590.chess.figure.Side;
 import x590.chess.figure.step.IStep;
 import x590.util.function.TriPredicate;
 
-import java.util.Collection;
+import java.util.List;
 
 public abstract class AbstractFigureBehaviour implements FigureBehaviour {
 
@@ -30,13 +30,13 @@ public abstract class AbstractFigureBehaviour implements FigureBehaviour {
 		}
 	}
 
-	public Collection<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current) {
+	public List<? extends IStep> getPossibleSteps(ChessBoard board, Side side, Pos current) {
 		return getSteps(board, side, current, StepGettingType.POSSIBLE_STEPS);
 	}
 
-	public Collection<Pos> getControlledFields(ChessBoard board, Side side, Pos current) {
+	public List<Pos> getControlledFields(ChessBoard board, Side side, Pos current) {
 		return getSteps(board, side, current, StepGettingType.CONTROLLED_FIELDS);
 	}
 
-	protected abstract Collection<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type);
+	protected abstract List<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type);
 }

@@ -1,4 +1,4 @@
-package x590.chess.playingside;
+package x590.chess.playingside.remote;
 
 import x590.chess.Main;
 import x590.chess.config.GameConfig;
@@ -7,6 +7,7 @@ import x590.chess.io.PacketInputStream;
 import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.setup.GameConfigPacket;
 import x590.util.Logger;
+import x590.util.annotation.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -22,9 +23,11 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 
 	private final ServerSocket serverSocket;
 
+	private final String address;
+
 	private final GameConfig gameConfig;
 
-	private volatile boolean canMakeMove;
+	private volatile boolean ready;
 
 	public ServerboundRemotePlayingSide() {
 
@@ -33,6 +36,9 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 		try {
 			this.serverSocket = new ServerSocket();
 			serverSocket.bind(randomSocketAddress);
+
+			this.address = InetAddress.getLocalHost().getHostAddress() + ":" + serverSocket.getLocalPort();
+
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
 		}
@@ -57,7 +63,7 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 
 	@Override
 	protected void run(BoardPanel boardPanel) throws IOException {
-		showIPAddress(InetAddress.getLocalHost().getHostAddress() + ":" + serverSocket.getLocalPort());
+		showIPAddress(address);
 
 		Logger.log("Socket accepting...");
 
@@ -80,8 +86,9 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 
 		sendStartPackets();
 
-		this.canMakeMove = true;
+		this.ready = true;
 		boardPanel.getGamePanel().updateState();
+		boardPanel.unlockGameEndButtons();
 
 		receivePackets(boardPanel, socket, in);
 	}
@@ -97,14 +104,21 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 	private static final Dimension PADDING_DIMENSION = new Dimension(PADDING, 0);
 
 	public static void showIPAddress(String address) {
-
 		var dialog = new JDialog(Main.getFrame(), Main.TITLE, true);
 
+		dialog.setContentPane(createIPAddressPanel(address, () -> dialog.setVisible(false)));
+		dialog.pack();
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
+	}
+
+
+	private static JPanel createIPAddressPanel(String address, Runnable onClick) {
 		var panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
-		panel.add(new JLabel("Локальный IP адрес: " + address, SwingConstants.CENTER));
+		panel.add(new JLabel("<html>Локальный IP адрес: <i>" + address + "</i></html>", SwingConstants.CENTER));
 
 		panel.add(Box.createRigidArea(PADDING_DIMENSION));
 
@@ -116,17 +130,15 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 							.getSystemClipboard()
 							.setContents(new StringSelection(address), null);
 
-					dialog.setVisible(false);
+					onClick.run();
 				}
 		);
 
 		panel.add(copyButton);
 
-		dialog.setContentPane(panel);
-		dialog.pack();
-		dialog.setLocationRelativeTo(null);
-		dialog.setVisible(true);
+		return panel;
 	}
+
 
 	@Override
 	public void onGameEnd() {
@@ -160,12 +172,22 @@ public class ServerboundRemotePlayingSide extends RemotePlayingSide {
 	}
 
 	@Override
-	public boolean canMakeMove() {
-		return canMakeMove;
+	public boolean ready() {
+		return ready;
 	}
 
 	@Override
 	public String getInitialState() {
-		return "Ожидание подключения";
+		return "Ожидание подключения...";
+	}
+
+	@Override
+	public @Nullable JComponent getAdditionalInitialState() {
+		return createIPAddressPanel(address, () -> {});
+	}
+
+	@Override
+	public boolean shouldLockGameEndButtons() {
+		return socket == null; // Если соединения ещё нет, значит мы должны заблокировать кнопки
 	}
 }

@@ -1,13 +1,14 @@
 package x590.chess.figure;
 
+import x590.chess.LowercaseEnumJsonSerializable;
 import x590.chess.board.ChessBoard;
 
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 /**
  * Сторона, за которую играет игрок (или бот)
  */
-public enum Side {
+public enum Side implements LowercaseEnumJsonSerializable {
 	WHITE("white", "Белые",  "Ход белых",  (whiteChoose, blackChoose) -> whiteChoose, ChessBoard.START, ChessBoard.END),
 	BLACK("black", "Чёрные", "Ход чёрных", (whiteChoose, blackChoose) -> blackChoose, ChessBoard.END, ChessBoard.START);
 
@@ -15,11 +16,11 @@ public enum Side {
 
 	private final String localizedName, state;
 
-	private final BiFunction<Object, Object, Object> chooser;
+	private final BinaryOperator<Object> chooser;
 
 	private final int startY, endY;
 
-	Side(String directory, String localizedName, String state, BiFunction<Object, Object, Object> chooser, int startY, int endY) {
+	Side(String directory, String localizedName, String state, BinaryOperator<Object> chooser, int startY, int endY) {
 		this.directory = directory;
 		this.localizedName = localizedName;
 		this.state = state;
@@ -28,6 +29,9 @@ public enum Side {
 		this.endY = endY;
 	}
 
+	/**
+	 * @return Случайную сторону с вероятностью 50%
+	 */
 	public static Side randomSide() {
 		return Math.random() < 0.5 ? Side.WHITE : Side.BLACK;
 	}
@@ -42,6 +46,14 @@ public enum Side {
 
 	public String getState() {
 		return state;
+	}
+
+	public String getState(boolean isKingAttacked) {
+		return isKingAttacked ? state + ". Шах" : state;
+	}
+
+	public String getGiveUpMessage() {
+		return localizedName + " сдались";
 	}
 
 	public Side opposite() {

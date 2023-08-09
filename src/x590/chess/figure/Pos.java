@@ -11,6 +11,7 @@ import x590.util.annotation.Immutable;
 import x590.util.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import static x590.chess.board.ChessBoard.SIZE;
 
@@ -31,6 +32,10 @@ public final class Pos implements IStep, PacketOutputStreamWritable {
 			}
 		}
 	}
+
+	public static final Pos
+			START = INSTANCES[ChessBoard.START][ChessBoard.START],
+			END = INSTANCES[ChessBoard.END][ChessBoard.END];
 
 	private final int x, y;
 
@@ -79,6 +84,25 @@ public final class Pos implements IStep, PacketOutputStreamWritable {
 		}
 
 		return of(x, y);
+	}
+
+	/**
+	 * @return Следующую позицию в строке
+	 * или первую позицию в следующей строке, если текущая строка закончилась
+	 * или {@code null}, если следующей позиции нет.
+	 */
+	public @Nullable Pos nextOrNull() {
+		int x = this.x,
+			y = this.y;
+
+		if (x == ChessBoard.END) {
+			x = 0;
+			y++;
+		} else {
+			x++;
+		}
+
+		return x <= ChessBoard.END && y <= ChessBoard.END ? INSTANCES[y][x] : null;
 	}
 
 	@Override

@@ -4,7 +4,12 @@ import x590.chess.board.ChessBoard;
 import x590.chess.config.Config;
 import x590.chess.figure.Side;
 import x590.chess.gui.*;
+import x590.chess.gui.game.GamePanel;
 import x590.chess.playingside.*;
+import x590.chess.playingside.bot.LogicLocalBot;
+import x590.chess.playingside.bot.RandomLocalBot;
+import x590.chess.playingside.remote.ClientboundRemotePlayingSide;
+import x590.chess.playingside.remote.ServerboundRemotePlayingSide;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,12 +66,23 @@ public class Main {
 		}
 	}
 
-	public static void exit() {
-		exitNormally();
-	}
-
 	private static void gameOnThisComputer() {
-		runGame(TITLE_OFFLINE, new MonopolisticLocalPlayer(), new MonopolisticLocalPlayer(), Main::askUserForSide);
+		Supplier<PlayingSide> monopolisticLocalPlayerCreator = MonopolisticLocalPlayer::new;
+
+		Supplier<PlayingSide> opponentSideCreator = GuiUtil.showOptionDialog("Играть:", "",
+				new String[] { "С собой", "С рандомным ботом", "С линейным ботом" },
+				monopolisticLocalPlayerCreator, RandomLocalBot::new, LogicLocalBot::new);
+
+		if (opponentSideCreator == null) {
+			exitNormally();
+		}
+
+		runGame(TITLE_OFFLINE,
+				new MonopolisticLocalPlayer(),
+				opponentSideCreator.get(),
+				Main::askUserForSide,
+				opponentSideCreator == monopolisticLocalPlayerCreator
+		);
 	}
 
 	private static Side askUserForSide() {
@@ -76,7 +92,7 @@ public class Main {
 		);
 
 		if (side == null) {
-			System.exit(0);
+			exitNormally();
 		}
 
 		return side;
@@ -88,13 +104,14 @@ public class Main {
 			runGame(TITLE_LOCAL_SERVER,
 					new LocalPlayer(),
 					serverboundPlayingSide,
-					() -> serverboundPlayingSide.getGameConfig().serverSide()
+					() -> serverboundPlayingSide.getGameConfig().serverSide(),
+					false
 			);
 
 		} catch (UncheckedIOException ex) {
 			JOptionPane.showMessageDialog(frame, ex.getLocalizedMessage());
 			ex.printStackTrace();
-			System.exit(1);
+			exitWithError();
 		}
 	}
 
@@ -102,20 +119,20 @@ public class Main {
 	private static final String ILLEGAL_ADDRESS_OR_PORT_MESSAGE = "Неверный формат адреса или порта";
 
 	private static void connectToGameInLocalNet() {
-		String nonSplittedAddressAndPort = JOptionPane.showInputDialog(
+		String result = JOptionPane.showInputDialog(
 				frame, "Введите адрес и порт хоста:",
 				null, JOptionPane.PLAIN_MESSAGE
 		);
 
-		if (nonSplittedAddressAndPort == null) {
-			System.exit(0);
+		if (result == null) {
+			exitNormally();
 		}
 
-		String[] addressAndPort = nonSplittedAddressAndPort.split(":");
+		String[] addressAndPort = result.split(":");
 
 		if (addressAndPort.length != 2) {
 			GuiUtil.showPlainMessageDialog(ILLEGAL_ADDRESS_OR_PORT_MESSAGE);
-			System.exit(0);
+			exitNormally();
 		}
 
 		InetAddress inetAddress;
@@ -125,7 +142,7 @@ public class Main {
 			inetAddress = InetAddress.getByName(addressAndPort[0]);
 		} catch (UnknownHostException ex) {
 			GuiUtil.showPlainMessageDialog(ex);
-			System.exit(0);
+			exitNormally();
 			return;
 		}
 
@@ -133,7 +150,7 @@ public class Main {
 			port = Integer.parseInt(addressAndPort[1]);
 		} catch (NumberFormatException ex) {
 			GuiUtil.showPlainMessageDialog(ILLEGAL_ADDRESS_OR_PORT_MESSAGE);
-			System.exit(0);
+			exitNormally();
 			return;
 		}
 
@@ -143,21 +160,22 @@ public class Main {
 			runGame(TITLE_CLIENT,
 					new LocalPlayer(),
 					clientboundPlayingSide,
-					clientboundPlayingSide::querySide
+					clientboundPlayingSide::querySide,
+					false
 			);
 
 		} catch (UncheckedIOException ex) {
 			GuiUtil.showPlainMessageDialog(ex.getCause());
 			ex.printStackTrace();
-			System.exit(1);
+			exitWithError();
 		}
 	}
 
 	private static void runGame(String title, PlayingSide thisPlayingSide, PlayingSide opponentPlayingSide,
-								Supplier<Side> sideSupplier) {
+								Supplier<Side> sideSupplier, boolean isWithSelf) {
 
 		frame.setTitle(title);
-		frame.add(new GamePanel(ChessBoard.defaultPlacement(), sideSupplier, thisPlayingSide, opponentPlayingSide));
+		frame.add(new GamePanel(ChessBoard.defaultPlacement(), sideSupplier, thisPlayingSide, opponentPlayingSide, isWithSelf));
 		frame.setVisible(true);
 	}
 

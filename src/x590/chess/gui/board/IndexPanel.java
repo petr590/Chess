@@ -1,30 +1,32 @@
 package x590.chess.gui.board;
 
-import x590.chess.gui.board.FieldPanel;
+import x590.chess.gui.ResizeableObject;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Панель с индексом строки или столбца доски
+ */
 public class IndexPanel extends JLabel {
 
-	private static final Dimension
-			VERTICAL_PREFERRED_SIZE = new Dimension(),
-			HORIZONTAL_PREFERRED_SIZE = new Dimension();
+	private static final ResizeableObject<Dimension>
+			VERTICAL_PREFERRED_SIZE = ResizeableObject.newDimension(IndexPanel::less, IndexPanel::same).immediatelyUpdate(),
+			HORIZONTAL_PREFERRED_SIZE = ResizeableObject.newDimension(IndexPanel::same, IndexPanel::less).immediatelyUpdate();
 
-	static {
-		updateSize();
+	private static int same(int size) {
+		return size;
 	}
 
-	public static void updateSize() {
-		VERTICAL_PREFERRED_SIZE.width = HORIZONTAL_PREFERRED_SIZE.height = FieldPanel.getPreferredSizeValue() / 2;
-		VERTICAL_PREFERRED_SIZE.height = HORIZONTAL_PREFERRED_SIZE.width = FieldPanel.getPreferredSizeValue();
+	private static int less(int size) {
+		return size / 2;
 	}
 
 	public IndexPanel(int index, boolean isVertical) {
 		super(isVertical ? Integer.toString(index + 1) : Character.toString((char)('A' + index)),
 				SwingConstants.CENTER);
 
-		setPreferredSize(isVertical ? VERTICAL_PREFERRED_SIZE : HORIZONTAL_PREFERRED_SIZE);
+		setPreferredSize((isVertical ? VERTICAL_PREFERRED_SIZE : HORIZONTAL_PREFERRED_SIZE).get());
 
 		setFont(getFont().deriveFont(Font.BOLD));
 		setOpaque(true);

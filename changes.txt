@@ -1,1 +1,11 @@
-Minor Gui fixes and improvements
+Added a server and a client for the local network.
+Added packages for data transfer between the server and the client, a system for writing and reading objects.
+Fixed bugs related to multithreading, server, client.
+
+Added the ability to undo and redo canceled moves (Ctrl+Z, Ctrl+Y).
+Added the ability to give up or offer a draw.
+Added a status bar.
+
+Added different dialog boxes for different situations.
+
+Two bots have been added: one moves randomly, the other evaluates the position and options of moves.

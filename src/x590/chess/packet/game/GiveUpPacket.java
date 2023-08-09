@@ -3,7 +3,7 @@ package x590.chess.packet.game;
 import x590.chess.gui.GuiUtil;
 import x590.chess.gui.board.BoardPanel;
 import x590.chess.packet.SingletonPacket;
-import x590.chess.playingside.RemotePlayingSide;
+import x590.chess.playingside.remote.RemotePlayingSide;
 
 public final class GiveUpPacket extends SingletonPacket {
 
@@ -22,6 +22,6 @@ public final class GiveUpPacket extends SingletonPacket {
 	@Override
 	public void handle(RemotePlayingSide playingSide, BoardPanel boardPanel) {
 		GuiUtil.showPlainMessageDialog(playingSide.getName() + " сдался");
-		playingSide.onGameEnd();
+		boardPanel.endGame(boardPanel.getThisSide().opposite().getGiveUpMessage());
 	}
 }

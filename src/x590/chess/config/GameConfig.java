@@ -2,33 +2,61 @@ package x590.chess.config;
 
 import x590.chess.Main;
 import x590.chess.figure.Side;
+import x590.chess.gui.GuiUtil;
 import x590.chess.io.PacketInputStream;
 import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.PacketOutputStreamWritable;
+import x590.util.annotation.Immutable;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.io.IOException;
 import java.text.NumberFormat;
 
 /**
- * Настройки игры. Как правило, сетевой
+ * Настройки сетевой игры
  */
-public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADrawTimeout /* Несмотря на название, измеряется не в секундах, а в количестве ходов */)
-		implements PacketOutputStreamWritable {
+@Immutable
+public class GameConfig implements PacketOutputStreamWritable {
+
+	public static final boolean DEFAULT_ALLOW_MOVE_CANCEL = false;
 
 	public static final int
 			MIN_TIMEOUT = 0,
 			MAX_TIMEOUT = 0xFF,
 			DEFAULT_TIMEOUT = 16;
 
-	public GameConfig {
+	private final Side serverSide;
+
+	private final boolean allowMoveCancel;
+
+	// Несмотря на название, измеряется не в секундах, а в количестве ходов
+	private final int offerADrawTimeout;
+
+
+	public GameConfig(Side serverSide, boolean allowMoveCancel, int offerADrawTimeout) {
 		if (offerADrawTimeout < MIN_TIMEOUT || offerADrawTimeout > MAX_TIMEOUT) {
 			throw new IllegalArgumentException("offerADrawTimeout is out of range " + MIN_TIMEOUT + ".." + MAX_TIMEOUT);
 		}
+
+		this.serverSide = serverSide;
+		this.allowMoveCancel = allowMoveCancel;
+		this.offerADrawTimeout = offerADrawTimeout;
 	}
+
+	public Side serverSide() {
+		return serverSide;
+	}
+
+	public boolean allowMoveCancel() {
+		return allowMoveCancel;
+	}
+
+	public int offerADrawTimeout() {
+		return offerADrawTimeout;
+	}
+
 
 	private static final int PADDING = 12;
 	private static final Dimension PADDING_DIMENSION = new Dimension(0, PADDING);
@@ -37,10 +65,24 @@ public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADra
 
 	public static GameConfig askUserGameConfig() {
 
+		var defaultGameConfig = Main.getConfig().defaultGameConfig();
+
 		var panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
+		panel.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+
+
+		var nameField = new JTextField(Main.getConfig().getName());
+
+		var namePanel = new JPanel();
+		namePanel.add(new JLabel("Имя: "));
+		namePanel.add(nameField);
+		panel.add(namePanel);
+
+
+		panel.add(Box.createRigidArea(PADDING_DIMENSION));
+
 
 		var whiteSide = new JRadioButton("Белые");
 		var blackSide = new JRadioButton("Чёрные");
@@ -50,7 +92,8 @@ public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADra
 		sideGroup.add(whiteSide);
 		sideGroup.add(blackSide);
 		sideGroup.add(randomSide);
-		whiteSide.setSelected(true);
+
+		defaultGameConfig.serverSide.choose(whiteSide, blackSide).setSelected(true);
 
 		panel.add(whiteSide);
 		panel.add(blackSide);
@@ -61,6 +104,7 @@ public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADra
 
 
 		var allowMoveCancel = new JCheckBox("Разрешить отмену ходов");
+		allowMoveCancel.setSelected(defaultGameConfig.allowMoveCancel);
 		panel.add(allowMoveCancel);
 
 
@@ -76,7 +120,7 @@ public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADra
 		numberFormatter.setAllowsInvalid(false);
 
 		var offerADrawTimeout = new JFormattedTextField(numberFormatter);
-		offerADrawTimeout.setValue(DEFAULT_TIMEOUT);
+		offerADrawTimeout.setValue(defaultGameConfig.offerADrawTimeout);
 
 		var offerADrawTimeoutPanel = new JPanel();
 		offerADrawTimeoutPanel.add(new JLabel("Блокировать кнопку \"Предложить ничью\" на"));
@@ -85,19 +129,20 @@ public record GameConfig(Side serverSide, boolean allowMoveCancel, int offerADra
 		panel.add(offerADrawTimeoutPanel);
 
 
-		int result = JOptionPane.showOptionDialog(Main.getFrame(), panel, CREATE_GAME,
-				JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				new String[] { CREATE_GAME }, CREATE_GAME
-		);
+		String result = GuiUtil.showOptionDialog(panel, CREATE_GAME, CREATE_GAME);
 
-		if (result == -1) {
-			System.exit(0);
+		if (result == null) {
+			Main.exitNormally();
 		}
 
-		Side side = whiteSide.isSelected() ? Side.WHITE :
-					blackSide.isSelected() ? Side.BLACK : Side.randomSide();
+		var sideGetter = whiteSide.isSelected() ? SideGetter.WHITE :
+					blackSide.isSelected() ? SideGetter.BLACK : SideGetter.RANDOM;
 
-		return new GameConfig(side, allowMoveCancel.isSelected(), (Integer) offerADrawTimeout.getValue());
+		var gameConfig = new SerializedGameConfig(sideGetter, allowMoveCancel.isSelected(), (Integer) offerADrawTimeout.getValue());
+
+		Main.getConfig().setAndTrySave(nameField.getText(), gameConfig);
+
+		return gameConfig;
 	}
 
 	public static GameConfig read(PacketInputStream in) throws IOException {

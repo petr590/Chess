@@ -4,16 +4,13 @@ import x590.chess.figure.step.IStep;
 import x590.chess.board.ChessBoard;
 import x590.chess.figure.behaviour.FigureBehaviour;
 import x590.chess.figure.behaviour.FigureBehaviours;
-import x590.chess.gui.board.FieldPanel;
+import x590.chess.gui.ResizeableObject;
+import x590.chess.io.ResourceLoader;
 import x590.util.annotation.Immutable;
-import x590.util.annotation.RemoveIfNotUsed;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 
@@ -53,8 +50,8 @@ public enum Figure {
 	private final String emoji;
 
 	private final Image originalImage;
-	private Image image;
-	private final ImageIcon icon, miniIcon;
+	private final ResizeableObject<Image> image;
+	private final ResizeableObject<ImageIcon> icon, miniIcon;
 
 	private final FigureBehaviour behaviour;
 
@@ -63,17 +60,29 @@ public enum Figure {
 		this.type = type;
 		this.emoji = emoji;
 
-		String path = "textures/" + side.getDirectory() + '/' + type.getFileName();
-		
-		try(var in = ClassLoader.getSystemClassLoader().getResourceAsStream(path)) {
-			this.image = this.originalImage = ImageIO.read(in != null ? in : new FileInputStream(path));
+		this.originalImage = ResourceLoader.loadTexture(side.getDirectory() + File.separatorChar + type.getFileName());
+		this.image = ResizeableObject.of(
+				originalImage,
+				(oldImage, size) -> originalImage.getScaledInstance(size, size, Image.SCALE_SMOOTH)
+		);
 
-		} catch (IOException ex) {
-			throw new UncheckedIOException(ex);
-		}
+		this.icon = ResizeableObject.constant(
+				new ImageIcon(),
+				icon -> icon.setImage(image.get())
+		);
 
-		this.icon = new ImageIcon(image);
-		this.miniIcon = new ImageIcon(image.getScaledInstance(image.getWidth(null) / 2, image.getHeight(null) / 2, Image.SCALE_SMOOTH));
+
+		this.miniIcon = ResizeableObject.constant(
+				new ImageIcon(),
+				icon -> {
+					var image = this.image.get();
+					icon.setImage(image.getScaledInstance(
+							image.getWidth(null) / 2,
+							image.getHeight(null) / 2,
+							Image.SCALE_SMOOTH
+					));
+				}
+		);
 
 		this.behaviour = behaviour;
 	}
@@ -100,31 +109,14 @@ public enum Figure {
 
 			whitePawnTurningFigures.add(whiteFigure);
 			blackPawnTurningFigures.add(blackFigure);
-			whitePawnTurningIcons.add(whiteFigure.icon);
-			blackPawnTurningIcons.add(blackFigure.icon);
+			whitePawnTurningIcons.add(whiteFigure.icon.get());
+			blackPawnTurningIcons.add(blackFigure.icon.get());
 		}
 
 		WHITE_PAWN_TURNING_FIGURES = Collections.unmodifiableList(whitePawnTurningFigures);
 		BLACK_PAWN_TURNING_FIGURES = Collections.unmodifiableList(blackPawnTurningFigures);
 		WHITE_PAWN_TURNING_ICONS = Collections.unmodifiableList(whitePawnTurningIcons);
 		BLACK_PAWN_TURNING_ICONS = Collections.unmodifiableList(blackPawnTurningIcons);
-
-		updateSize();
-	}
-
-
-	public static void updateSize() {
-		int preferredSize = FieldPanel.getPreferredSizeValue();
-
-		for (Figure figure : VALUES) {
-			var image = figure.image;
-
-			if (preferredSize != image.getWidth(null) || preferredSize != image.getHeight(null)) {
-				figure.image = figure.originalImage.getScaledInstance(preferredSize, preferredSize, Image.SCALE_SMOOTH);
-				figure.icon.setImage(figure.image);
-				figure.miniIcon.setImage(figure.image.getScaledInstance(preferredSize / 2, preferredSize / 2, Image.SCALE_SMOOTH));
-			}
-		}
 	}
 
 	public static @Immutable List<Figure> getPawnTurningFigures(Side side) {
@@ -153,23 +145,18 @@ public enum Figure {
 	}
 
 	public Image getImage() {
-		return image;
-	}
-
-	@RemoveIfNotUsed
-	public ImageIcon getIcon() {
-		return icon;
+		return image.get();
 	}
 
 	public ImageIcon getMiniIcon() {
-		return miniIcon;
+		return miniIcon.get();
 	}
 
-	public Collection<? extends IStep> getPossibleSteps(ChessBoard board, Pos current) {
+	public List<? extends IStep> getPossibleSteps(ChessBoard board, Pos current) {
 		return behaviour.getPossibleSteps(board, side, current);
 	}
 
-	public Collection<Pos> getControlledFields(ChessBoard board, Pos current) {
+	public List<Pos> getControlledFields(ChessBoard board, Pos current) {
 		return behaviour.getControlledFields(board, side, current);
 	}
 
@@ -179,5 +166,10 @@ public enum Figure {
 
 	public boolean canBeTookBy(Side side) {
 		return this.side != side && canBeTook();
+	}
+
+
+	public static int compareByWorth(Figure figure1, Figure figure2) {
+		return Integer.compare(figure2.getWorth(), figure1.getWorth());
 	}
 }

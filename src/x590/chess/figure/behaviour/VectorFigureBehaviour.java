@@ -5,7 +5,9 @@ import x590.chess.figure.Direction;
 import x590.chess.figure.Pos;
 import x590.chess.figure.Side;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class VectorFigureBehaviour extends AbstractFigureBehaviour {
 
@@ -17,7 +19,7 @@ public class VectorFigureBehaviour extends AbstractFigureBehaviour {
 
 
 	@Override
-	public Collection<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type) {
+	public List<Pos> getSteps(ChessBoard board, Side side, Pos current, StepGettingType type) {
 		List<Pos> possibleSteps = new ArrayList<>();
 
 		for (Direction direction : possibleDirections) {

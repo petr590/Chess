@@ -9,6 +9,7 @@ import x590.chess.figure.move.IMove.IExtraMove;
 import x590.chess.io.PacketInputStream;
 import x590.chess.io.PacketOutputStream;
 import x590.chess.packet.PacketOutputStreamWritableWithTag;
+import x590.chess.playingside.PlayingSide;
 import x590.util.annotation.Nullable;
 
 import java.io.IOException;
@@ -97,9 +98,9 @@ public interface IStep extends PacketOutputStreamWritableWithTag {
 	 * Запрашивает фигуру у пользователя, если необходимо.
 	 * Должен вызываться только при фактическом выполнении хода, в остальных случаях вызывайте {@link #resultFigure()}
 	 * @return Фигуру в результате хода или {@code null}, если фигура та же самая.
-	 * @see x590.chess.figure.move.TurningAPawnMove#queryResultFigure(Side)
+	 * @see x590.chess.figure.move.TurningAPawnMove#queryResultFigure(Side, PlayingSide)
 	 */
-	default @Nullable Figure queryResultFigure(Side side) {
+	default @Nullable Figure queryResultFigure(Side side, PlayingSide currentPlayingSide) {
 		return resultFigure();
 	}
 

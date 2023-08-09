@@ -1,4 +1,4 @@
-package x590.chess.playingside;
+package x590.chess.playingside.remote;
 
 import x590.chess.config.GameConfig;
 import x590.chess.figure.Side;

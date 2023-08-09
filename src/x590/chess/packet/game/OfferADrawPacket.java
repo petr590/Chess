@@ -3,7 +3,7 @@ package x590.chess.packet.game;
 import x590.chess.gui.GuiUtil;
 import x590.chess.gui.board.BoardPanel;
 import x590.chess.packet.SingletonPacket;
-import x590.chess.playingside.RemotePlayingSide;
+import x590.chess.playingside.remote.RemotePlayingSide;
 
 /**
  * Предложение ничьи
@@ -32,7 +32,7 @@ public final class OfferADrawPacket extends SingletonPacket {
 		playingSide.sendPacket(new DrawOfferResponsePacket(agree));
 
 		if (agree) {
-			playingSide.onGameEnd();
+			boardPanel.endGame("Ничья");
 		}
 	}
 }

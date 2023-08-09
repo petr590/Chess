@@ -1,8 +1,7 @@
-package x590.chess.gui;
+package x590.chess.gui.game;
 
 import x590.chess.figure.move.IMove;
 import x590.chess.gui.board.BoardPanel;
-import x590.chess.gui.board.LinkedPanel;
 import x590.util.Util;
 import x590.util.annotation.Nullable;
 
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Представляет панель с прокручиваемым списком ходов
  */
-public class MovesPanel extends LinkedPanel {
+public class MovesPanel extends JPanel {
 
 	private static final Color BORDER_COLOR = BoardPanel.BORDER_COLOR;
 
@@ -58,8 +57,8 @@ public class MovesPanel extends LinkedPanel {
 	}
 
 	@Override
-	protected Dimension originalPreferredSize() {
-		Dimension preferredSize = super.originalPreferredSize();
+	public Dimension getPreferredSize() {
+		Dimension preferredSize = super.getPreferredSize();
 		preferredSize.height = boardPanel.getHeight();
 		return preferredSize;
 	}
