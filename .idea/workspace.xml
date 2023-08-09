@@ -9,69 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf991f11-7bbd-49b0-85ca-810813335c44" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/LowercaseEnumJsonSerializable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/board/ExtendedAttackState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/board/SimpleAttackState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/board/Snapshot.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/config/SerializedGameConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/config/SideGetter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/ResizeableObject.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/NameLabel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/StatePanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/linked/ComponentWithDependentSize.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/linked/ILinkedComponent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/gui/linked/LinkedLabel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/io/ResourceLoader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/playingside/bot/AbstractLocalBot.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/playingside/bot/LogicLocalBot.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/x590/chess/playingside/bot/RandomLocalBot.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/waiting.gif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/board/AttackState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/board/AttackState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/board/ChessBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/board/ChessBoard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/config/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/config/Config.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/config/GameConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/config/GameConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/Figure.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/Figure.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/Pos.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/Pos.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/Side.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/Side.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/Worth.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/Worth.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/AbstractFigureBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/AbstractFigureBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/FigureBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/FigureBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/KingBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/KingBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/KnightBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/KnightBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/PawnBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/PawnBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/VectorFigureBehaviour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/behaviour/VectorFigureBehaviour.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/move/TurningAPawnMove.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/move/TurningAPawnMove.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/step/IStep.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/step/IStep.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/figure/step/StepResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/figure/step/StepResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/GameButtonsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/GameButtonsPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/GamePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/GuiUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/GuiUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/MovesPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/MovesPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/StatePanel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/TakenFiguresPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/game/TakenFiguresPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/BoardPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/BoardPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/CornerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/CornerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/FieldPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/FieldPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/IndexPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/board/IndexPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/gui/board/LinkedPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/gui/linked/LinkedPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/Packet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/CancelMovePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/CancelMovePacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/DrawOfferResponsePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/DrawOfferResponsePacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/GiveUpPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/GiveUpPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/MakeMovePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/MakeMovePacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/OfferADrawPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/OfferADrawPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/game/RepeatLastCanceledMovePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/game/RepeatLastCanceledMovePacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/setup/GameConfigPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/setup/GameConfigPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/packet/setup/SayNamePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/packet/setup/SayNamePacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/playingside/ClientboundRemotePlayingSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/playingside/remote/ClientboundRemotePlayingSide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/playingside/LocalPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/playingside/LocalPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/playingside/PlayingSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/playingside/PlayingSide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/playingside/RemotePlayingSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/playingside/remote/RemotePlayingSide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/x590/chess/playingside/ServerboundRemotePlayingSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/x590/chess/playingside/remote/ServerboundRemotePlayingSide.java" afterDir="false" />
-    </list>
+    <list default="true" id="cf991f11-7bbd-49b0-85ca-810813335c44" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
